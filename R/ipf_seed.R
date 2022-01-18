@@ -1,3 +1,22 @@
+#' ipf_seed
+#'
+#' @param reg_tz
+#' @param hh_s
+#' @param per_s
+#' @param bm
+#' @param p
+#' @param reg_sample
+#' @param verbose
+#' @param max_iter
+#' @param max_ratio
+#' @param min_ratio
+#' @param relative_gap
+#' @param absolute_gap
+#'
+#' @return
+#' @export
+#'
+#' @examples
 ipf_seed <- function(reg_tz, hh_s, per_s, bm, p, reg_sample = FALSE, verbose = FALSE,
                      max_iter = 300, max_ratio = 5, min_ratio = 0.2,
                      relative_gap = 0.01, absolute_gap = 10){
@@ -47,3 +66,4 @@ ipf_seed <- function(reg_tz, hh_s, per_s, bm, p, reg_sample = FALSE, verbose = F
              max_ratio = max_ratio, min_ratio = min_ratio, relative_gap = relative_gap)
   return(sim)
 }
+
