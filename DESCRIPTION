@@ -1,4 +1,4 @@
-Package: sidd
+Package: ssid
 Type: Package
 Title: Spatial Simulation of Income Dynamics model
 Version: 0.0.0.9000
@@ -21,8 +21,8 @@ Roxygen: list(markdown = TRUE)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-URL: https://github.com/michielvandijk/sidd
-BugReports: https://github.com/michielvandijk/sidd/issues
+URL: https://github.com/michielvandijk/ssid
+BugReports: https://github.com/michielvandijk/ssid/issues
 RoxygenNote: 7.1.2
 Imports: 
     dplyr

@@ -1,12 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# sidd
+# ssid
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The sidd package contains functions to run a dynamic spatial
+The ssid package contains functions to run a dynamic spatial
 microsimulation model that provides income and poverty projections at
 subnational scale. It uses a spatial microsimulation approach, to derive
 indicators at fine spatial resolution (e.g. districts and
@@ -23,12 +23,12 @@ under different scenarios.
 
 ## Installation
 
-You can install the development version of sidd from
+You can install the development version of ssid from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("michielvandijk/sidd")
+devtools::install_github("michielvandijk/ssid")
 ```
 
 ## Example
@@ -36,6 +36,6 @@ devtools::install_github("michielvandijk/sidd")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(sidd)
+library(ssid)
 ## basic example code
 ```

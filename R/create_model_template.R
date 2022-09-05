@@ -1,13 +1,13 @@
 #'@title
-#'Creates `sidd` model template
+#'Creates `ssid` model template
 #'
 #'@description
 #'`create_model_template` creates a folder structure with template R scripts to implement the various
-#'steps to run `sidd`.
+#'steps to run `ssid`.
 #'
 #'@details
 #'`create_model template()` creates several folders in the `template_path`, set by the user. The folders
-#'contain template R scripts to implement `sidd`.
+#'contain template R scripts to implement `ssid`.
 #'
 #'To run the template scripts, they have to be copied into an RStudio project. We recommend to
 #'create such a project first and then use `create_model_template()` to add the scripts to
@@ -28,7 +28,7 @@ create_model_template <- function(template_path = NULL) {
       dir.create(template_path, showWarnings = TRUE, recursive = TRUE)
 
   copy_template_files <- function(template_path) {
-    template_files <- list.files(system.file("template", package = "sidd"),
+    template_files <- list.files(system.file("template", package = "ssid"),
                                 full.names = TRUE, recursive = FALSE)
     purrr::walk(template_files, function(x) {
       if(file.exists(x)) {
