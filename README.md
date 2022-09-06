@@ -30,12 +30,3 @@ You can install the development version of ssid from
 # install.packages("devtools")
 devtools::install_github("michielvandijk/ssid")
 ```
-
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-library(ssid)
-## basic example code
-```
