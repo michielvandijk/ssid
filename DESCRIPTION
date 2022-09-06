@@ -25,4 +25,6 @@ URL: https://github.com/michielvandijk/ssid
 BugReports: https://github.com/michielvandijk/ssid/issues
 RoxygenNote: 7.1.2
 Imports: 
-    dplyr
+    dplyr,
+    furrr,
+    ipfr

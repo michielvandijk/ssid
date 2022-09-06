@@ -7,7 +7,7 @@
 #'
 #'@details
 #'`ssid_par` creates an object of class `ssid_par`, which bundles all required
-#'`ssid` parameters set by the user: model folder, three digit country code, country name and
+#'`ssid` parameters set by the user: model and database folder, three digit country code, country name and
 #'continent. The coordinate reference system is automatically set to WGS84
 #'(epsg:4326).
 #'
@@ -18,6 +18,7 @@
 #'
 #'@param model_path character string with the main model folder. Note that R uses
 #'  forward slash or double backslash to separate folder names.
+#'@param db_path character string with location of the ssid_db folder.
 #'@param iso3c character string with the three letter ISO 3166-1 alpha-3 country
 #'  code, also referred to as iso3c. A list of country codes can be found in
 #'  [Wikipedia](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3).
@@ -27,12 +28,13 @@
 #'
 #'@examples
 #'\dontrun{
-#'mapspamc_par(model_path = "C:/temp/ssid_eth",
+#'ssid_par(model_path = "C:/temp/ssid_eth", db_path = "C:/temp/ssid_db",
 #'iso3c = "ETH", year = 2018)
 #'}
 #'@export
 ssid_par <-
     function(model_path = NULL,
+             db_path = NULL,
              iso3c = NULL,
              year = NULL) {
 
@@ -43,6 +45,7 @@ ssid_par <-
             continent = ifelse(!is.null(iso3c), countrycode::countrycode(iso3c, "iso3c", "continent"), NA_character_),
             year = year,
             model_path = model_path,
+            db_path = db_path,
             crs = "epsg:4326")
         class(param) <- "ssid_par"
         validate_ssid_par(param)
@@ -54,6 +57,9 @@ validate_ssid_par <- function(param) {
   stopifnot(inherits(param, "ssid_par"))
   if (is.null(param$model_path))
     stop("model_path is not defined",
+         call. = FALSE)
+  if (is.null(param$model_path))
+    stop("db_path is not defined",
          call. = FALSE)
   if (is.na(param$iso3c)) {
     stop("iso3c not defined",
