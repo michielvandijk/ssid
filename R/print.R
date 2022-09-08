@@ -5,6 +5,7 @@ print.ssid_par <- function(x, ...) {
     cat("iso3c: ", x$iso3c, "\n")
     cat("continent: ", x$continent, "\n")
     cat("year: ", x$year, "\n")
+    cat("end year: ", x$end_year, "\n")
     cat("model path: ", x$model_path, "\n")
     cat("ssid database path: ", x$db_path, "\n")
     cat("crs: ", x$crs, "\n")

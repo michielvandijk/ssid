@@ -22,7 +22,8 @@
 #'@param iso3c character string with the three letter ISO 3166-1 alpha-3 country
 #'  code, also referred to as iso3c. A list of country codes can be found in
 #'  [Wikipedia](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3).
-#'@param year numeric with the reference year of the model.
+#'@param year numeric with the base year of the model.
+#'@param end_year numeric with the end year of the simulation period
 #'
 #'@return ssid_par object
 #'
@@ -36,7 +37,8 @@ ssid_par <-
     function(model_path = NULL,
              db_path = NULL,
              iso3c = NULL,
-             year = NULL) {
+             year = NULL,
+             end_year = NULL) {
 
       param <- list(
             iso3c = ifelse(!is.null(iso3c), toupper(iso3c), NA_character_),
@@ -44,6 +46,7 @@ ssid_par <-
             iso3n = ifelse(!is.null(iso3c), countrycode::countrycode(iso3c, "iso3c", "iso3n"), NA_character_),
             continent = ifelse(!is.null(iso3c), countrycode::countrycode(iso3c, "iso3c", "continent"), NA_character_),
             year = year,
+            end_year = end_year,
             model_path = model_path,
             db_path = db_path,
             crs = "epsg:4326")
@@ -81,6 +84,15 @@ validate_ssid_par <- function(param) {
       if(param$year < 2000 | param$year > 2030) {
         message("year seems to have an unrealistic value")
       }
+    }
+  }
+  if (is.null(param$end_year)) {
+    stop("end_year is not defined",
+         call. = FALSE)
+  } else {
+    if(!is.numeric(param$year)) {
+      stop("end_year is not a value",
+           call. = FALSE)
     }
   }
 }

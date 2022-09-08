@@ -26,5 +26,8 @@ BugReports: https://github.com/michielvandijk/ssid/issues
 RoxygenNote: 7.1.2
 Imports: 
     dplyr,
+    exactextractr,
     furrr,
-    ipfr
+    glue,
+    ipfr,
+    sf

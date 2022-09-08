@@ -1,0 +1,14 @@
+---
+title: "Notes"
+author: "Michiel van Dijk"
+date: "2022-09-07"
+output: pdf_document
+---
+
+# Functions to add in the package
+
+-   Function that checks consistency of the person and hh data - see checks in script.
+
+# Settings
+
+Need to create a standard script to prepare the adm map, which uses adm_code and adm_name, not referring to the adm level

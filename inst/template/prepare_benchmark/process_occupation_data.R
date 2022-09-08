@@ -1,111 +1,79 @@
 # ========================================================================================
-# Project:  simFNS
+# Project:  sidd
 # Subject:  process occupation data
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl
 # ========================================================================================
 
 # ========================================================================================
-# SETUP ----------------------------------------------------------------------------------
+# SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-# Load pacman for p_load
-if(!require(pacman)) install.packages("pacman")
-library(pacman)
+source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
-# Load key packages
-p_load(here, tidyverse, readxl, stringr, scales, glue)
-
-# Load additional packages
-p_load(sf)
-
-# Set path
-source(here("working_paper/scripts/support/set_path.r"))
-
-# R options
-options(scipen = 999)
-options(digits = 4)
 
 
 # ========================================================================================
-# SET ISO3c AND BASE YEAR ----------------------------------------------------------------
+# SET ISO3c ------------------------------------------------------------------------------
 # ========================================================================================
 
-iso3c_sel <- "ETH"
-by_sel <- 2018
-
+iso3c_sel <- "BGD"
 
 # ========================================================================================
 # LOAD DATA ------------------------------------------------------------------------------
 # ========================================================================================
 
-# Subnational employment data
-subnat_db_raw <- readRDS(file.path(raw_path, glue("snl_db/subnat_dhs.rds"))) %>%
-  filter(adm0_code == iso3c_sel) %>%
-  rename(adm1_name = region) 
-
-# ilo data
+# Employment data
+subnat_emp_raw <- readRDS(file.path(raw_path, glue("snl_db/subnat_dhs.rds"))) %>%
+  filter(adm0_code == iso3c_sel)
+nat_emp_raw <- readRDS(file.path(raw_path, glue("snl_db/nat_dhs.rds")))
 ilo_raw <- readRDS(file.path(raw_path, glue("snl_db/nat_ilo.rds"))) %>%
   filter(iso3c == iso3c_sel)
 
-# adm1 map consistent with microsim
-# NOTE THAT WE USE ADM1 HERE BUT THIS IS NOT ALWAYS THE CASE! ALSO CHECH BELOW WHEN NAMES ARE MATCHED.
-adm <- readRDS(file.path(proc_path, glue("adm/adm1_{iso3c_sel}.rds")))
+# adm1
+adm1 <- readRDS(file.path(proc_path, glue("adm/adm1_{iso3c_sel}.rds")))
 
 
 # ========================================================================================
-# HARMONIZE YEAR AND ADM -----------------------------------------------------------------
+# PREPARE SUBNATIONAL EMPLOYMENT DATA ----------------------------------------------------
 # ========================================================================================
 
-# Select adm occupation data by selecting base year or most recent year close to the base year
-if(by_sel == max(subnat_db_raw$year)) {
-  subnat_db <- subnat_db_raw %>%
-    filter(year == by_sel) 
-} else {
-  subnat_db <- subnat_db_raw %>%
-    filter(year == year[which.min(abs(year - by_sel))])
-  print(max(subnat_db$year))
-  subnat_db <- subnat_db %>%
-    mutate(year = by_sel)
-}
+# We select a year that is closes to the base year (manually at the moment)
+subnat_emp <- subnat_emp_raw %>%
+  filter(year == 2004)
 
-# check match in adm names
-adm_match <- adm %>%
-  st_drop_geometry() %>%
-  transmute(adm1_name, adm1_code, source1 = "adm") %>%
-  full_join(subnat_db %>%
-               dplyr::select(adm1_name) %>%
-               unique() %>%
-               mutate(source2 = "occ")
-  )
 
-# Remap by_subnat_shares to names used in microsim
-subnat_db <- subnat_db %>%
+# HARMONIZE ADM NAMES --------------------------------------------------------------------
+# Remap to names used in adm1, select relevant variables
+unique(adm1$adm1_name)
+unique(subnat_emp_raw$region)
+
+# Note: we do not use Chittagong/Sylhet, which is a combination of two regions.
+subnat_emp <- subnat_emp %>%
   mutate(adm1_name = case_when(
-    adm1_name == "SNNPR" ~ "SNNP",
-    adm1_name == "Afar" ~ "Affar",
-    TRUE ~ adm1_name
-  )) %>%
-  left_join(adm %>%
-              st_drop_geometry()) 
+    region == "..Chittagong" ~ "Chittagong",
+    region == "..Sylhet" ~ "Sylhet",
+    region == "Barisal" ~ "Barisal",
+    region == "Khulna" ~ "Khulna",
+    region == "Dhaka before 2015" ~ "Dhaka",
+    region == "Rajshahi/Rangpur" ~ "Rajshahi, Rangpur")) %>%
+  filter(!region == "Chittagong/Sylhet") %>%
+  dplyr::select(-region)
 
 
-# ========================================================================================
 # SPLIT DATA -----------------------------------------------------------------------------
-# ========================================================================================
-
 # DHS combines off_mgr_pros and off_mgr_pros in one category
 # We split them using national shares from the ILO
 # We use the same year as for the DHS or first available (manually at the moment)
 
 # select occupation data
-subnat_occ <- subnat_db %>%
+subnat_occ <- subnat_emp %>%
   filter(variable %in% c("ag_othlowsk", "clerks", "off_mgr_pros & tech_aspros", "service_shop"))
 
 # Calculate ILO shares
 ilo <- ilo_raw %>%
   filter(urban_rural == "total", year == 2010, occ_gtap != "total") %>%
-  mutate(value = value/sum(value, na.rm = TRUE)) %>%
+  mutate(share = value/sum(value, na.rm = TRUE)) %>%
   rename(variable = occ_gtap)
 
 # Compare dhs and ilo
@@ -114,10 +82,10 @@ comp_ilo_dhs <- bind_rows(
   ilo %>%
     mutate(source = "ILO"),
   subnat_occ %>%
-    mutate(source = "Subnational"))
+    mutate(source = "DHS"))
 
 ggplot(data = comp_ilo_dhs) +
-  geom_point(aes(x = variable, y = value, shape = source, color = source),
+  geom_point(aes(x = variable, y = share, shape = source, color = source),
              size = 2, alpha = 0.5)
 
 # Split subnational off_mgr_pros & tech_aspros
@@ -137,31 +105,20 @@ subnat_occ <- bind_rows(
   ) %>%
     left_join(ilo_split) %>%
     mutate(value = value * split) %>%
-    dplyr::select(-split),
+    dplyr::select(-split, -share),
   subnat_occ %>%
-    filter(!variable %in% c("off_mgr_pros & tech_aspros"))
+    filter(!variable %in% c("off_mgr_pros & tech_aspros")) %>%
+    dplyr::select(-share)
 ) %>%
   group_by(year, adm0_code, adm1_name) %>%
   mutate(share = value/sum(value, na.rm = TRUE)) %>%
   ungroup
 
-# Compare dhs and ilo again
-# Subnational DHS values resemble ILO national values
-comp_ilo_dhs <- bind_rows(
-  ilo %>%
-    mutate(source = "ILO"),
-  subnat_occ %>%
-    mutate(source = "Subnational"))
-
-ggplot(data = comp_ilo_dhs) +
-  geom_point(aes(x = variable, y = value, shape = source, color = source),
-             size = 2, alpha = 0.5)
-
 
 # COMBINE --------------------------------------------------------------------------------
-subnat_db <- bind_rows(
+subnat_emp <- bind_rows(
   subnat_occ,
-  subnat_db %>%
+  subnat_emp %>%
     filter(!variable %in% c("ag_othlowsk", "clerks", "off_mgr_pros",
                             "off_mgr_pros & tech_aspros", "service_shop"))
 )
@@ -171,6 +128,6 @@ subnat_db <- bind_rows(
 # ========================================================================================
 
 dir.create(file.path(proc_path, "benchmark"), recursive = TRUE, showWarnings = FALSE)
-saveRDS(subnat_db, file.path(proc_path,
-                               glue("benchmark/subnat_occ_by_raw_{iso3c_sel}.rds")))
+saveRDS(subnat_emp, file.path(proc_path,
+                              glue("benchmark/subnat_emp_by_raw_{iso3c_sel}.rds")))
 

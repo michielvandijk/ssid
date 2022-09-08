@@ -5,24 +5,14 @@
 # Contact:  michiel.vandijk@wur.nl
 # ========================================================================================
 
+
 # ========================================================================================
-# SETUP ----------------------------------------------------------------------------------
+# SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-# Load pacman for p_load
-if(!require(pacman)) install.packages("pacman")
-library(pacman)
+source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
-# Load key packages
-p_load("here", "tidyverse", "readxl", "stringr", "scales", "glue", "janitor", "countrycode",
-       "gdalUtils", "sf", "raster", "exactextractr")
 
-# Set path
-source(here("working_paper/scripts/support/set_path.r"))
-
-# R options
-options(scipen = 999)
-options(digits = 4)
 
 # ========================================================================================
 # FUNCTIONS ------------------------------------------------------------------------------
@@ -58,27 +48,34 @@ ag_adm <- function(r, adm_file){
 
 
 # ========================================================================================
-# SET ISO3c ------------------------------------------------------------------------------
-# ========================================================================================
-
-iso3c_sel <- "ETH"
-
-
-# ========================================================================================
 # EXTRACT URBAN-RURAL SSP PROJECTIONS ----------------------------------------------------
 # ========================================================================================
 
 # CLIP FILES -----------------------------------------------------------------------------
 # Urban-rural data files - do not select total pop files
-ur_proj_files <- list.files(file.path(raw_path, "spatial_ssp_population/"),
+files <- list.files(file.path(param$db_path, "spatial_ssp_population/"),
                             c("*_(urban|rural)_[0-9]{4}[.]tif$"), recursive = TRUE, full.names = T)
 
 
 # Clip file
-clip_file <- file.path(proc_path, glue("adm/adm_{iso3c_sel}.shp"))
+adm <- file.path(param$model_path, glue("adm/adm_{param$iso3c}.shp"))
 
-# # Clip all files
-walk(ur_proj_files, clip_country, clip_file = clip_file, iso3c = iso3c_sel)
+# Function to clip urban-rural ssp
+clip_urban_rural <- function(f, adm_file, path = "benchmark/spatial_ssp_population", param){
+  ssp <- str_split(basename(f), pattern = "_")[[1]][[1]]
+  output_folder <- file.path(param$model_path, glue("{path}/{ssp}"))
+  dir.create(output_folder, recursive = TRUE, showWarnings = FALSE)
+  file_name <- glue("{strsplit(basename(f), '[.]')[[1]][1]}_{iso3c}.tif")
+  output_file <- glue("{output_folder}/{file_name}")
+  cat(basename(output_file), "\n")
+  r <- clip_country(f, adm_file, f)
+  plot(r, main = basename(output_file))
+  writeRaster(r, filename = output_file)
+}
+
+
+# Clip all files
+walk(files[1], clip_urban_rural, adm_file = adm, param = param)
 
 
 # AGGREGATE OVER ADM -------------------------------------------------------------------

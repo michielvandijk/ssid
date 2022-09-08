@@ -2,16 +2,18 @@
 % Please edit documentation in R/clip_country.R
 \name{clip_country}
 \alias{clip_country}
-\title{Title}
+\title{Function to clip national maps from global WorldPop sex and age disaggregated population maps}
 \usage{
-clip_country(clip_file, iso3c, input_file)
+clip_country(r, adm)
 }
 \arguments{
-\item{input_file}{}
+\item{r}{Object of class SpatRaster, Raster or their path}
+
+\item{adm}{object of class sf with the location of subnational units}
 }
 \value{
 
 }
 \description{
-Title
+Function to clip national maps from global WorldPop sex and age disaggregated population maps
 }

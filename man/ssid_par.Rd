@@ -4,7 +4,13 @@
 \alias{ssid_par}
 \title{Sets \code{ssid} parameters}
 \usage{
-ssid_par(model_path = NULL, db_path = NULL, iso3c = NULL, year = NULL)
+ssid_par(
+  model_path = NULL,
+  db_path = NULL,
+  iso3c = NULL,
+  year = NULL,
+  end_year = NULL
+)
 }
 \arguments{
 \item{model_path}{character string with the main model folder. Note that R uses
@@ -16,7 +22,9 @@ forward slash or double backslash to separate folder names.}
 code, also referred to as iso3c. A list of country codes can be found in
 \href{https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3}{Wikipedia}.}
 
-\item{year}{numeric with the reference year of the model.}
+\item{year}{numeric with the base year of the model.}
+
+\item{end_year}{numeric with the end year of the simulation period}
 }
 \value{
 ssid_par object
