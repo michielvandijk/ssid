@@ -1,69 +1,48 @@
 # ========================================================================================
-# Project:  simFNS
+# Project:  ssid
 # Subject:  Script to create subnational occupation projections
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl
 # ========================================================================================
 
 # ========================================================================================
-# SETUP ----------------------------------------------------------------------------------
+# SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-# Load pacman for p_load
-if(!require(pacman)) install.packages("pacman")
-library(pacman)
+source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
-# Load key packages
-p_load(here, tidyverse, readxl, stringr, scales, glue)
-
-# Load additional packages
-
-
-# Set path
-source(here("working_paper/scripts/support/set_path.r"))
-
-# R options
-options(scipen = 999)
-options(digits = 4)
-
-
-# ========================================================================================
-# SET ISO3c AND BASE YEAR ----------------------------------------------------------------
-# ========================================================================================
-
-iso3c_sel <- "ETH"
-by <- 2018
 
 # ========================================================================================
 # LOAD DATA ------------------------------------------------------------------------------
 # ========================================================================================
 
 # Subnational employment data
-subnat_db <- readRDS(file.path(raw_path, glue("snl_db/subnat_dhs.rds"))) %>%
-  filter(adm0_code == "ETH")
+subnat_db <- readRDS(file.path(param$db_path, glue("snl_db/subnat_dhs.rds"))) %>%
+  filter(adm0_code == param$iso3c)
 
 # Macro employment projections
-nat_occ_raw <- readRDS(file.path(raw_path, glue("occupation_projections/occupation_projections.rds"))) %>%
-   filter(iso3c  == iso3c_sel)
+nat_occ_raw <- readRDS(file.path(param$db_path, glue("occupation_projections/occupation_projections.rds"))) %>%
+   filter(iso3c  == param$iso3c)
 
 # ADM1 map consistent with microsim
-adm1 <- readRDS(file.path(proc_path, glue("adm/adm1_{iso3c_sel}.rds")))
+adm1 <- readRDS(file.path(param$model_path, glue("adm/adm1_{param$iso3c}.rds")))
 
 # Subnational population
-subnat_pop <- readRDS(file.path(proc_path, glue("benchmark/subnat_urban_rural_proj_raw_{iso3c_sel}.rds")))
+subnat_pop <- readRDS(file.path(param$model_path, glue("benchmark/subnat_urban_rural_proj_raw_{param$iso3c}.rds")))
+
 
 # ========================================================================================
 # MAP SUBNATIONAL EMPLOYMENT DATA ---------------------------------------------------------
 # ========================================================================================
 
 # Select adm occupation data by selecting base year or last available year
-if(by == max(subnat_db$year == by)) {
+if(param$year == max(subnat_db$year == param$year)) {
   by_subnat_shares <- subnat_db %>%
-    filter(year == by) 
+    filter(year == param$year)
 } else {
   by_subnat_shares <- subnat_db %>%
     filter(year == max(year)) %>%
-    mutate(year = by)
+    mutate(year = param$year)
   max(subnat_db$year)
 }
 
@@ -75,11 +54,28 @@ sort(unique(by_subnat_shares$region))
 
 # Remap by_subnat_shares to names used in microsim
 by_subnat_shares <- by_subnat_shares %>%
+  filter(!region == "Chittagong/Sylhet") %>%
   mutate(adm1_name = case_when(
-    region == "Benishangul-Gumuz" ~ "Benishangul-Gumz\r\n",
+    region == "..Chittagong" ~ "CHITTAGONG",
+    region == "..Sylhet" ~ "SYLHET",
+    region == "Barisal" ~ "BARISAL",
+    region == "Dhaka before 2015" ~ "DHAKA",
+    region == "Khulna" ~ "KHULNA",
+    region == "Rajshahi/Rangpur" ~ "RAJSHAHI",
     TRUE ~ region
   )) %>%
   dplyr::select(-region)
+
+# Assume that missing adms, which are the result of spliting adms, have the same values.
+by_subnat_shares <- bind_rows(
+  by_subnat_shares %>%
+    filter(adm1_name == "DHAKA") %>%
+    mutate(adm1_name = "MYMENSINGH"),
+  by_subnat_shares %>%
+    filter(adm1_name == "RAJSHAHI") %>%
+    mutate(adm1_name = "RANGPUR"),
+  by_subnat_shares
+)
 
 
 # ========================================================================================
@@ -89,8 +85,8 @@ by_subnat_shares <- by_subnat_shares %>%
 # Calculate shares and growth index rate for shares
 nat_occ <- nat_occ_raw %>%
   group_by(occ) %>%
-  mutate(index = value / value[year == by]) %>%
-  filter(year >= by) %>%
+  mutate(index = value / value[year == param$year]) %>%
+  filter(year >= param$year) %>%
   dplyr::select(-value) %>%
   ungroup()
 

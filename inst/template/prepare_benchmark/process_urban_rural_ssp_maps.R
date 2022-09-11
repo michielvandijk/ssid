@@ -58,44 +58,56 @@ files <- list.files(file.path(param$db_path, "spatial_ssp_population/"),
 
 
 # Clip file
-adm <- file.path(param$model_path, glue("adm/adm_{param$iso3c}.shp"))
+adm <- st_read(file.path(param$model_path, glue("adm/adm1_{param$iso3c}.shp")))
+f <- files[1]
+adm_file <- adm
 
 # Function to clip urban-rural ssp
 clip_urban_rural <- function(f, adm_file, path = "benchmark/spatial_ssp_population", param){
   ssp <- str_split(basename(f), pattern = "_")[[1]][[1]]
   output_folder <- file.path(param$model_path, glue("{path}/{ssp}"))
   dir.create(output_folder, recursive = TRUE, showWarnings = FALSE)
-  file_name <- glue("{strsplit(basename(f), '[.]')[[1]][1]}_{iso3c}.tif")
+  file_name <- glue("{strsplit(basename(f), '[.]')[[1]][1]}_{param$iso3c}.tif")
   output_file <- glue("{output_folder}/{file_name}")
   cat(basename(output_file), "\n")
-  r <- clip_country(f, adm_file, f)
+  r <- clip_country(f, adm_file)
   plot(r, main = basename(output_file))
-  writeRaster(r, filename = output_file)
+  writeRaster(r, filename = output_file, overwrite = TRUE)
 }
 
 
 # Clip all files
-walk(files[1], clip_urban_rural, adm_file = adm, param = param)
+walk(files, clip_urban_rural, adm_file = adm, param = param)
 
 
 # AGGREGATE OVER ADM -------------------------------------------------------------------
-# Adm
-adm <- readRDS(file.path(proc_path, glue("adm/adm_{iso3c_sel}.rds")))
 
 # Population projections
-pop_files <- list.files(file.path(proc_path, "benchmark/spatial_ssp_population/"),
+files <- list.files(file.path(param$model_path, "benchmark/spatial_ssp_population/"),
                         pattern = glob2rx("*.tif"), recursive = TRUE, full.names = T)
 
+# function to aggregate ssp spatial population to adm and add ssp identifier
+aggregate_population <- function(f, adm_file){
+  cat(basename(f), "\n")
+  df <- aggregate2adm(f, adm_file) %>%
+    mutate(
+      scenario = strsplit(basename(f), '[_/|.]')[[1]][1],
+      urban_rural = strsplit(basename(f), '[_/|.]')[[1]][2],
+      year = as.integer(strsplit(basename(f), '[_/|.]')[[1]][3])
+    )
+  return(df)
+}
+
 # Aggregate over adm
-subnat_urban_rural_proj_raw <- map_df(pop_files, ag_adm, adm) %>%
-  arrange(adm2_name, scenario, urban_rural, year)
+urban_rural_proj_raw <- map_df(files, aggregate_population, adm) %>%
+  arrange(adm1_name, scenario, urban_rural, year)
 
 
 # ========================================================================================
 # SAVE -----------------------------------------------------------------------------------
 # ========================================================================================
 
-saveRDS(subnat_urban_rural_proj_raw, file.path(proc_path,
-                                          glue("benchmark/subnat_urban_rural_proj_raw_{iso3c_sel}.rds")))
+saveRDS(urban_rural_proj_raw, file.path(param$model_path,
+                                          glue("benchmark/subnat_urban_rural_proj_raw_{param$iso3c}.rds")))
 
 

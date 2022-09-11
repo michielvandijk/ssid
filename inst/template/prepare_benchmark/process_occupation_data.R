@@ -12,26 +12,19 @@
 source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
 
-
-# ========================================================================================
-# SET ISO3c ------------------------------------------------------------------------------
-# ========================================================================================
-
-iso3c_sel <- "BGD"
-
 # ========================================================================================
 # LOAD DATA ------------------------------------------------------------------------------
 # ========================================================================================
 
 # Employment data
-subnat_emp_raw <- readRDS(file.path(raw_path, glue("snl_db/subnat_dhs.rds"))) %>%
-  filter(adm0_code == iso3c_sel)
-nat_emp_raw <- readRDS(file.path(raw_path, glue("snl_db/nat_dhs.rds")))
-ilo_raw <- readRDS(file.path(raw_path, glue("snl_db/nat_ilo.rds"))) %>%
-  filter(iso3c == iso3c_sel)
+subnat_emp_raw <- readRDS(file.path(param$db_path, glue("snl_db/subnat_dhs.rds"))) %>%
+  filter(adm0_code == param$iso3c)
+nat_emp_raw <- readRDS(file.path(param$db_path, glue("snl_db/nat_dhs.rds")))
+ilo_raw <- readRDS(file.path(param$db_path, glue("snl_db/nat_ilo.rds"))) %>%
+  filter(iso3c == param$iso3c)
 
 # adm1
-adm1 <- readRDS(file.path(proc_path, glue("adm/adm1_{iso3c_sel}.rds")))
+adm1 <- readRDS(file.path(param$model_path, glue("adm/adm1_{param$iso3c}.rds")))
 
 
 # ========================================================================================
@@ -105,15 +98,10 @@ subnat_occ <- bind_rows(
   ) %>%
     left_join(ilo_split) %>%
     mutate(value = value * split) %>%
-    dplyr::select(-split, -share),
+    dplyr::select(-split),
   subnat_occ %>%
-    filter(!variable %in% c("off_mgr_pros & tech_aspros")) %>%
-    dplyr::select(-share)
-) %>%
-  group_by(year, adm0_code, adm1_name) %>%
-  mutate(share = value/sum(value, na.rm = TRUE)) %>%
-  ungroup
-
+    filter(!variable %in% c("off_mgr_pros & tech_aspros"))
+)
 
 # COMBINE --------------------------------------------------------------------------------
 subnat_emp <- bind_rows(
@@ -127,7 +115,7 @@ subnat_emp <- bind_rows(
 # SAVE -----------------------------------------------------------------------------------
 # ========================================================================================
 
-dir.create(file.path(proc_path, "benchmark"), recursive = TRUE, showWarnings = FALSE)
-saveRDS(subnat_emp, file.path(proc_path,
-                              glue("benchmark/subnat_emp_by_raw_{iso3c_sel}.rds")))
+dir.create(file.path(param$model_path, "benchmark"), recursive = TRUE, showWarnings = FALSE)
+saveRDS(subnat_emp, file.path(param$model_path,
+                              glue("benchmark/subnat_emp_by_raw_{param$iso3c}.rds")))
 
