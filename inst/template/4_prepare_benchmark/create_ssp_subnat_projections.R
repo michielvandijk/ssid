@@ -67,6 +67,19 @@ ssp_raw <- read_csv(file.path(param$db_path, "ssp/ssp_v2/SspDb_country_data_2013
   clean_names() %>%
   remove_empty()
 
+# Subnational occupation data
+subnat_occ_by_raw <- readRDS(file.path(param$model_path,
+                              glue("benchmark/subnat_emp_by_raw_{param$iso3c}.rds")))
+
+# Macro employment projections
+nat_occ_raw <- readRDS(file.path(param$db_path, glue("occupation_projections/occupation_projections.rds"))) %>%
+  filter(iso3c  == param$iso3c) %>%
+  rename(variable = occ)
+
+# Headship rate
+headship_rate <- readRDS(file.path(param$model_path,
+                                 glue("benchmark/headship_rate_{param$iso3c}.rds")))
+
 
 # ========================================================================================
 # PREPARE NATIONAL AGE-SEX PROJECTIONS ---------------------------------------------------
@@ -182,24 +195,24 @@ ggplot(data = nat_pop_comp) +
   geom_line(aes(x = year, y = value, color = scenario, linetype = source))
 
 
-# SCALE SSP PROJECTIONS TO UN POPULATION DATA FOR BASE YEAR FOR EACH AGE-SEX CLASS
+# SCALE SSP PROJECTIONS TO UN POPULATION DATA FOR START YEAR FOR EACH AGE-SEX CLASS
 
 # Calculate index
 nat_age_sex_proj <- nat_age_sex_proj %>%
   group_by(scenario, sex, age) %>%
-  mutate(index = value / value[year == param$year]) %>%
+  mutate(index = value / value[year == param$base_year]) %>%
   ungroup()
 
 # Add base year values from UN population data and recalculate projections
 nat_age_sex_proj <- nat_age_sex_proj %>%
   left_join(
     nat_age_sex %>%
-      filter(year == param$year) %>%
+      filter(year == param$base_year) %>%
       dplyr::select(-year) %>%
       rename(by_value = value)) %>%
   mutate(value = by_value * index) %>%
   dplyr::select(-index, -by_value) %>%
-  filter(year >= param$year,  year <= param$end_year)
+  filter(year >= param$base_year,  year <= param$end_year)
 
 # Compare again
 nat_pop_comp2 <- bind_rows(
@@ -245,7 +258,7 @@ nat_pop_proj <- nat_pop_proj %>%
 
 # Comparison between UN population and worldpop in base year
 nat_age_sex %>%
-  filter(year == param$year) %>%
+  filter(year == param$base_year) %>%
   summarize(value = sum(value, na.rm = TRUE)) %>%
   pull()
 sum(subnat_age_sex_by_raw$value)
@@ -279,7 +292,7 @@ subnat_age_sex_by <- subnat_age_sex_by %>%
   ungroup() %>%
   left_join(
     nat_age_sex_proj %>%
-      filter(scenario == "ssp2", year == param$year) %>%
+      filter(scenario == "ssp2", year == param$base_year) %>%
       rename(value_by = value)
   ) %>%
   mutate(value = share * value_by) %>%
@@ -332,14 +345,14 @@ un_urban_sf <- bind_rows(
       source = "un_urbanization"
     )
 ) %>%
-  filter(year == param$year) %>%
+  filter(year == param$base_year) %>%
   dplyr::select(-scenario) %>%
   pivot_wider(names_from = source, values_from = value) %>%
   mutate(un_urban_sf = nat_pop_proj / un_urbanization)
 
 # scale un urbanization prospects for base year
 un_urban_rural <- un_urban_rural %>%
-  filter(year == param$year) %>%
+  filter(year == param$base_year) %>%
   mutate(value = value * un_urban_sf$un_urban_sf)
 
 
@@ -362,7 +375,7 @@ subnat_urban_rural_proj <- subnat_urban_rural_proj_raw %>%
 
 m <- subnat_urban_rural_proj %>%
     mutate(adm2_code = paste0("x", adm2_code)) %>%
-    filter(year == param$year, scenario == "ssp2") %>%
+    filter(year == param$base_year, scenario == "ssp2") %>%
     dplyr::select(adm2_code, urban_rural, value) %>%
     arrange(adm2_code, urban_rural) %>%
     pivot_wider(names_from = urban_rural, values_from = value, values_fill = 0) %>%
@@ -402,7 +415,7 @@ rm(m, row_t, col_t)
 
 # Check where things go wrong
 index_nan_id <- subnat_urban_rural_proj %>%
-  filter(year == 2018, value == 0) %>%
+  filter(year == param$base_year, value == 0) %>%
   mutate(id = paste(adm2_code, scenario, urban_rural, sep = "_")) %>%
   dplyr::select(id) %>%
   unique() %>%
@@ -411,7 +424,7 @@ index_nan_id <- subnat_urban_rural_proj %>%
 index_nan <- subnat_urban_rural_proj %>%
   filter(paste(adm2_code, scenario, urban_rural, sep = "_") %in% index_nan_id)
 
-# Replace projections, update using index and select param$year and param$end_year range
+# Replace projections, update using index and select param$base_year and param$end_year range
 subnat_urban_rural_proj <- bind_rows(
   subnat_urban_rural_proj %>%
     filter(paste(adm2_code, scenario, urban_rural, sep = "_") %in% index_nan_id) %>%
@@ -420,54 +433,12 @@ subnat_urban_rural_proj <- bind_rows(
     filter(!paste(adm2_code, scenario, urban_rural, sep = "_") %in% index_nan_id)
   ) %>%
   group_by(scenario, adm1_name, adm2_name, adm2_code, urban_rural) %>%
-  mutate(index = value/value[year == param$year]) %>%
+  mutate(index = value/value[year == param$base_year]) %>%
   ungroup() %>%
   left_join(subnat_urban_rural_by) %>%
   mutate(value = index*value_by) %>%
-  filter(year >= param$year, year <= param$end_year) %>%
+  filter(year >= param$base_year, year <= param$end_year) %>%
   dplyr::select(-value_by, -index)
-
-
-# ========================================================================================
-# ADDITIONAL STEP SPECIFIC FOR ETH -------------------------------------------------------
-# ========================================================================================
-
-# FIX ADDIS ABABA ------------------------------------------------------------------------
-# Addis Ababa has only urban hh in the seed, while SSP projections also include a small share
-# of rural hh. We set them all to urban
-
-subnat_urban_rural_proj <- bind_rows(
-  subnat_urban_rural_proj %>%
-    filter(adm1_code == "231014") %>%
-    mutate(urban_rural = "urban") %>%
-    group_by(adm0_code, adm1_name, adm1_code, adm2_name, adm2_code, scenario, urban_rural, year) %>%
-    summarize(value = sum(value, na.rm = TRUE), .groups = "drop"),
-  subnat_urban_rural_proj %>%
-    filter(adm1_code != "231014")
-)
-
-# SCALE SUBNAT URBAN-RURAL PROJECTIONS TO NATIONAL POPULATION PROJECTIONS ----------------
-
-subnat_urban_rural_proj_sf <- bind_rows(
-  nat_pop_proj %>%
-    group_by(year, scenario) %>%
-    summarize(value = sum(value, na.rm = TRUE), .groups = "drop") %>%
-    mutate(source = "total"),
-  subnat_urban_rural_proj %>%
-    group_by(year, scenario) %>%
-    summarize(value = sum(value, na.rm = TRUE), .groups = "drop") %>%
-    mutate(source = "urban_rural")
-) %>%
-  pivot_wider(names_from = source, values_from = value) %>%
-  filter(!is.na(urban_rural)) %>%
-  mutate(subnat_urban_rural_proj_sf = total/urban_rural) %>%
-  dplyr::select(-total, -urban_rural)
-
-# Apply scaling factor
-subnat_urban_rural_proj <- subnat_urban_rural_proj %>%
-  left_join(subnat_urban_rural_proj_sf) %>%
-  mutate(value = value * subnat_urban_rural_proj_sf) %>%
-  dplyr::select(-subnat_urban_rural_proj_sf)
 
 
 # ========================================================================================
@@ -477,7 +448,7 @@ subnat_urban_rural_proj <- subnat_urban_rural_proj %>%
 # Calculate nat projections index
 nat_age_sex_proj_index <- nat_age_sex_proj %>%
   group_by(scenario, sex, age) %>%
-  mutate(index = value/value[year == param$year]) %>%
+  mutate(index = value/value[year == param$base_year]) %>%
   ungroup() %>%
   dplyr::select(-value)
 
@@ -520,7 +491,7 @@ comp_subnat_pop_proj %>%
 # Select relevant ssps and years, include base year and base year of sub-national occupation data!
 subnat_urban_rural_proj <- subnat_urban_rural_proj %>%
   filter(
-    year %in% c(param$year, 2020, 2030, 2040, 2050))
+    year %in% c(param$base_year, 2020, 2030, 2040, 2050))
 
 # Combinations of year and scenarios for which matrix will be raked
 ssp_year_all <- expand_grid(
@@ -577,16 +548,15 @@ subnat_age_sex_proj <- subnat_age_sex_proj %>%
 # PREPARE NATIONAL OCCUPATION PROJECTIONS ------------------------------------------------
 # ========================================================================================
 
-# NEED TO FIX CLASSIFICATION ag_othlowsk
 # Calculate shares and growth index rate for shares
 nat_occ <- nat_occ_raw %>%
   mutate(variable = ifelse(variable == "agri_lowsk", "ag_othlowsk", variable)) %>%
-  filter(year >= param$year) %>%
+  filter(year >= param$base_year) %>%
   group_by(year, scenario) %>%
   mutate(share = value / sum(value, na.rm = TRUE)) %>%
   ungroup() %>%
   group_by(scenario, variable) %>%
-  mutate(index = share / share[year == param$year]) %>%
+  mutate(index = share / share[year == param$base_year]) %>%
   dplyr::select(-share, -value) %>%
   ungroup()
 
@@ -602,66 +572,61 @@ ggplot(data = nat_occ, aes(x = year, y = index)) +
 # SUBNATIONAL WORKING AGE PROJECTIONS ----------------------------------------------------
 # We group adm2 population into the following mutually exclusive categories:
 # children (m15), elderly (p65) and working population (15-64)
-subnat_age3_proj <- subnat_age_sex_proj %>%
-  mutate(variable = case_when(
+subnat_wa_proj <- subnat_age_sex_proj %>%
+  mutate(age = case_when(
     age %in% c(
       "15_24", "25_34", "35_44", "45_54", "55_64"
     ) ~ "working_age",
     TRUE ~ age
   )) %>%
-  group_by(adm0_code, adm1_name, adm1_code, adm2_name, adm2_code, scenario, year, variable) %>%
-  summarize(value = sum(value, na.rm = TRUE), .groups = "drop")
-
-# We split the working age population in labour force and not in labour force.
-# We assume the participation rate does not change.
-subnat_wa_proj <- subnat_age3_proj %>%
-  filter(variable == "working_age") %>%
-  dplyr::select(-variable) %>%
-  left_join(subnat_occ_by_raw %>%
-              mutate(share = value) %>%
-              filter(!variable %in% c("ag_othlowsk", "clerks", "off_mgr_pros", "tech_aspros", "service_shop")) %>%
-              dplyr::select(variable, share, adm1_name, adm1_code)) %>%
-  mutate(value = share *value) %>%
-  dplyr::select(-share)
-
+  group_by(adm0_code, adm1_name, adm1_code, adm2_name, adm2_code, scenario, year, age) %>%
+  summarize(population = sum(value, na.rm = TRUE), .groups = "drop")
 
 # SUBNATIONAL OCCUPATION PROJECTIONS -----------------------------------------------------
 
 # We use the national projections to project the subnational adm1 base year values
 # We assume base year subnational values hold for simulation year
 # We rescale projections so total sums to 1
+
 subnat_occ_sh_proj <- subnat_occ_by_raw %>%
-  filter(variable %in% c("ag_othlowsk", "clerks", "off_mgr_pros", "tech_aspros", "service_shop")) %>%
+  filter(indicator == "occupation") %>%
   dplyr::select(variable, share = value, adm0_code, adm1_name) %>%
   left_join(nat_occ) %>%
   mutate(
     occ_proj = share * index,
-    employed = "lf"
+    labor_force = "lf"
   ) %>%
-  group_by(scenario, adm0_code, adm1_name, employed, year) %>%
-  mutate(share = occ_proj / sum(occ_proj, na.rm = T)) %>%
+  group_by(scenario, adm0_code, adm1_name, year) %>%
+  mutate(occ_share = occ_proj / sum(occ_proj, na.rm = T)) %>%
   ungroup() %>%
-  dplyr::select(scenario, year, adm0_code, adm1_name, variable, share)
+  dplyr::select(scenario, year, adm0_code, adm1_name, occ = variable, labor_force, occ_share)
 
-# We split the employed in the five occupation classes
+# We use the national projections to project the subnational adm1 base year values
+# We assume base year subnational values hold for simulation year
+# We rescale projections so total sums to 1
 subnat_occ_proj <- subnat_wa_proj %>%
-  filter(variable == "lf") %>%
-  dplyr::select(-variable) %>%
+  left_join(subnat_occ_by_raw  %>%
+              rename(labor_force = variable, lf_share = value) %>%
+              mutate(age = "working_age") %>%
+              filter(indicator == "employment") %>%
+              dplyr::select(-year, -indicator)) %>%
   left_join(subnat_occ_sh_proj) %>%
-  mutate(value = share * value) %>%
-  dplyr::select(-share)
-
-# NB: need to be clear how we allocate self-employed family farmers.
-# I would argue they are included ag_othlowsk in this case as this category captures this
-# But it is not clear how they are counted in other data pieces.
-
-# We combine the m15, p65, not_emp and occ series
-subnat_occ_proj <- bind_rows(
-  subnat_age3_proj %>%
-    filter(variable %in% c("m15", "p65")),
-  subnat_wa_proj %>%
-    filter(variable == "not_in_lf"),
-  subnat_occ_proj)
+  mutate(
+    occ = case_when(
+      age == "m15" ~ "m15",
+      age == "p65" ~ "p65",
+      age == "working_age" & is.na(occ_share) ~ "not_in_lf",
+      age == "working_age" & !is.na(occ_share) ~ occ
+    ),
+    value = case_when(
+      age == "m15" ~ population,
+      age == "p65" ~ population,
+      age == "working_age" & is.na(occ_share) ~ population * lf_share,
+      age == "working_age" & !is.na(occ_share) ~ population * lf_share * occ_share
+    )
+  ) %>%
+  dplyr::select(-labor_force, -lf_share, -occ_share, -age, -population) %>%
+  rename(variable = occ)
 
 
 # ========================================================================================
@@ -701,12 +666,12 @@ subnat_hh_proj <- subnat_age_sex_proj %>%
   summarize(value = sum(value, na.rm = TRUE), .groups = "drop") %>%
   left_join(headship_rate)
 
+# The sample fraction can be found on the IPUMS website:
+# https://international.ipums.org/international-action/samples
+sample_fraction <- 1/0.05
+
 # Compare census and estimated hh_n
-# Not we compare census year with base year, which can be >10 years apart
-# NB COMPARISON IS NOT CORRECT
-# We compare adm1 data with the sum off the DMA polygons which are much smaller!!
-# Only comparison can be made if we estima hh-head for DMA region from IPUMS!
-sample_fraction = 1/0.1
+# Note that we compare census year with base year, which can be >10 years apart
 n_hh_check <- subnat_hh_proj %>%
   mutate(n_hh = value * h, na.rm = T) %>%
   group_by(scenario, year, adm1_name, age, sex) %>%
@@ -715,7 +680,7 @@ n_hh_check <- subnat_hh_proj %>%
     n_hh = sum(value * 1/h, na.rm = T),
     .groups = "drop"
   ) %>%
-  filter(year == param$year, scenario == "ssp2") %>%
+  filter(year == param$base_year, scenario == "ssp2") %>%
   mutate(check = n_hh / n_head)
 
 # Calculate n_hh

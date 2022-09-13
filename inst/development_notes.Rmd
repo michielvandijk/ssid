@@ -12,3 +12,19 @@ output: pdf_document
 # Settings
 
 Need to create a standard script to prepare the adm map, which uses adm_code and adm_name, not referring to the adm level
+
+
+# Data
+- need to split off mgr and tech when processing DHS and creating the dhs_db not in ssid scripts
+- line 538 create subnational age_sex_projections: seem to use two names for agr-otherlows: agri_lowsk", "ag_othlowsk. Need to harmonize!. Even better would be to split this in agri and elementary as we do in the ML exercise.
+- Preparation of national data in create_ssp_subnat_projections can be done in microsim_db repo. Better to create several global datasets, which serve as input data.
+- # Calculate index
+- CHeck that For a very small number of adms the ssp base year values are 0 (e.g. no urban population)
+while future values are non-zero (e.g urbanization starting in 2030). This creates problems as the index number cannot be calculated. We solve this by now by setting the projections to 1 for all years in the adms where this happens. This ensures that the index is 1 throughout, base year values of the projections will be the same as the base year value and series are consistent. => check if we can turn this into a function.
+
+NB: need to be clear how we allocate self-employed family farmers.
+I would argue they are included ag_othlowsk in this case as this category captures this
+But it is not clear how they are counted in other data pieces.
+
+Check calculation of hh heads and why it differs so much in some regions (see BGD)
+

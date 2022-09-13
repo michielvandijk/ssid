@@ -17,44 +17,67 @@ source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 # ========================================================================================
 
 # Employment data
-subnat_emp_raw <- readRDS(file.path(param$db_path, glue("snl_db/subnat_dhs.rds"))) %>%
+subnat_db <- readRDS(file.path(param$db_path, glue("snl_db/subnat_dhs.rds"))) %>%
   filter(adm0_code == param$iso3c)
 nat_emp_raw <- readRDS(file.path(param$db_path, glue("snl_db/nat_dhs.rds")))
 ilo_raw <- readRDS(file.path(param$db_path, glue("snl_db/nat_ilo.rds"))) %>%
   filter(iso3c == param$iso3c)
 
-# adm1
-adm1 <- readRDS(file.path(param$model_path, glue("adm/adm1_{param$iso3c}.rds")))
+# adm
+adm <- readRDS(file.path(param$model_path, glue("adm/adm_{param$iso3c}.rds")))
 
 
 # ========================================================================================
-# PREPARE SUBNATIONAL EMPLOYMENT DATA ----------------------------------------------------
-# ========================================================================================
-
-# We select a year that is closes to the base year (manually at the moment)
-subnat_emp <- subnat_emp_raw %>%
-  filter(year == 2004)
-
-
 # HARMONIZE ADM NAMES --------------------------------------------------------------------
-# Remap to names used in adm1, select relevant variables
-unique(adm1$adm1_name)
-unique(subnat_emp_raw$region)
+# ========================================================================================
 
-# Note: we do not use Chittagong/Sylhet, which is a combination of two regions.
+# Select adm occupation data by selecting base year or last available year
+if(param$base_year == max(subnat_db$year == param$base_year)) {
+  subnat_emp <- subnat_db %>%
+    filter(year == param$base_year)
+} else {
+  subnat_emp <- subnat_db %>%
+    filter(year == max(year)) %>%
+    mutate(year = param$base_year)
+  max(subnat_db$year)
+}
+
+# adm microsim
+unique(sort(adm1$adm1_name))
+
+# adm dhs
+sort(unique(subnat_emp$region))
+
+# Remap subnat_emp to names used in microsim
 subnat_emp <- subnat_emp %>%
-  mutate(adm1_name = case_when(
-    region == "..Chittagong" ~ "Chittagong",
-    region == "..Sylhet" ~ "Sylhet",
-    region == "Barisal" ~ "Barisal",
-    region == "Khulna" ~ "Khulna",
-    region == "Dhaka before 2015" ~ "Dhaka",
-    region == "Rajshahi/Rangpur" ~ "Rajshahi, Rangpur")) %>%
   filter(!region == "Chittagong/Sylhet") %>%
+  mutate(adm1_name = case_when(
+    region == "..Chittagong" ~ "CHITTAGONG",
+    region == "..Sylhet" ~ "SYLHET",
+    region == "Barisal" ~ "BARISAL",
+    region == "Dhaka before 2015" ~ "DHAKA",
+    region == "Khulna" ~ "KHULNA",
+    region == "Rajshahi/Rangpur" ~ "RAJSHAHI",
+    TRUE ~ region
+  )) %>%
   dplyr::select(-region)
 
+# Assume that missing adms, which are the result of spliting adms, have the same values.
+subnat_emp <- bind_rows(
+  subnat_emp %>%
+    filter(adm1_name == "DHAKA") %>%
+    mutate(adm1_name = "MYMENSINGH"),
+  subnat_emp %>%
+    filter(adm1_name == "RAJSHAHI") %>%
+    mutate(adm1_name = "RANGPUR"),
+  subnat_emp
+)
 
+
+# ========================================================================================
 # SPLIT DATA -----------------------------------------------------------------------------
+# ========================================================================================
+
 # DHS combines off_mgr_pros and off_mgr_pros in one category
 # We split them using national shares from the ILO
 # We use the same year as for the DHS or first available (manually at the moment)
@@ -66,7 +89,7 @@ subnat_occ <- subnat_emp %>%
 # Calculate ILO shares
 ilo <- ilo_raw %>%
   filter(urban_rural == "total", year == 2010, occ_gtap != "total") %>%
-  mutate(share = value/sum(value, na.rm = TRUE)) %>%
+  mutate(value = value/sum(value, na.rm = TRUE)) %>%
   rename(variable = occ_gtap)
 
 # Compare dhs and ilo
@@ -78,7 +101,7 @@ comp_ilo_dhs <- bind_rows(
     mutate(source = "DHS"))
 
 ggplot(data = comp_ilo_dhs) +
-  geom_point(aes(x = variable, y = share, shape = source, color = source),
+  geom_point(aes(x = variable, y = value, shape = source, color = source),
              size = 2, alpha = 0.5)
 
 # Split subnational off_mgr_pros & tech_aspros
@@ -115,7 +138,12 @@ subnat_emp <- bind_rows(
 # SAVE -----------------------------------------------------------------------------------
 # ========================================================================================
 
-dir.create(file.path(param$model_path, "benchmark"), recursive = TRUE, showWarnings = FALSE)
 saveRDS(subnat_emp, file.path(param$model_path,
                               glue("benchmark/subnat_emp_by_raw_{param$iso3c}.rds")))
 
+
+# ========================================================================================
+# CLEAN UP -------------------------------------------------------------------------------
+# ========================================================================================
+
+rm(adm, comp_ilo_dhs, ilo, ilo_raw, ilo_split, nat_emp_raw, subnat_db, subnat_emp, subnat_occ)

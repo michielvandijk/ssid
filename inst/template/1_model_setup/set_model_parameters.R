@@ -14,7 +14,7 @@ if(!require(pacman)) install.packages("pacman")
 library(pacman)
 
 # Load required packages
-p_load(ssid, countrycode, here, ggspatial, glue, haven, janitor,
+p_load(ssid, countrycode, here, ggspatial, glue, haven, imputeTS, ipumsr, janitor, furrr, progressr,
        terra, tidyverse, readxl, scales, sf, tictoc)
 
 # R options
@@ -43,7 +43,8 @@ param <- ssid_par(
   model_path = model_path,
   db_path = db_path,
   iso3c = "BGD",
-  year = 2016,
+  base_year = 2016,
+  start_year = 2016,
   end_year = 2050)
 
 print(param)

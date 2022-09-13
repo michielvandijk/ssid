@@ -8,23 +8,30 @@ ssid_par(
   model_path = NULL,
   db_path = NULL,
   iso3c = NULL,
-  year = NULL,
+  adm_level = NULL,
+  base_year = NULL,
+  start_year = NULL,
   end_year = NULL
 )
 }
 \arguments{
-\item{model_path}{character string with the main model folder. Note that R uses
+\item{model_path}{character. Folder where the model files are stored. Note that R uses
 forward slash or double backslash to separate folder names.}
 
-\item{db_path}{character string with location of the ssid_db folder.}
+\item{db_path}{character. Folder where the input database is stored.}
 
-\item{iso3c}{character string with the three letter ISO 3166-1 alpha-3 country
+\item{iso3c}{character. Three letter ISO 3166-1 alpha-3 country
 code, also referred to as iso3c. A list of country codes can be found in
 \href{https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3}{Wikipedia}.}
 
-\item{year}{numeric with the base year of the model.}
+\item{adm_level}{numeric. Administrative unit level at which the model is run. This needs to correspond with
+the information in the shapefile of the administrative units, which is needed as input.}
 
-\item{end_year}{numeric with the end year of the simulation period}
+\item{base_year}{numeric. Base year of the model, normally the year of the household survey.}
+
+\item{start_year}{numeric. Start year of the simulation period.}
+
+\item{end_year}{numeric. End year of the simulation period.}
 }
 \value{
 ssid_par object
@@ -47,6 +54,6 @@ country specific information from several datasets.
 \examples{
 \dontrun{
 ssid_par(model_path = "C:/temp/ssid_eth", db_path = "C:/temp/ssid_db",
-iso3c = "ETH", year = 2018)
+iso3c = "ETH", adm_level = 2, base_year = 2018, start_year = 2018, end_year = 2050)
 }
 }

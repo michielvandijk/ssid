@@ -20,11 +20,11 @@ source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
 # CLIP FILES -----------------------------------------------------------------------------
 # global age-sex files
-files <- list.files(file.path(param$db_path, glue("age_sex_structures/{param$year}")),
+files <- list.files(file.path(param$db_path, glue("age_sex_structures/{param$base_year}")),
                     pattern = c(".*\\.tif$"), recursive = TRUE, full.names = T)
 
-# Clip file
-adm <- st_read(file.path(param$model_path, glue("adm/adm1_{param$iso3c}.shp")))
+# adm
+adm <- readRDS(file.path(param$model_path, glue("adm/adm_{param$iso3c}.rds")))
 
 # Function to age-sex structures
 clip_age_sex <- function(f, adm_file, path = "benchmark/age_sex_structures", param){
@@ -33,16 +33,17 @@ clip_age_sex <- function(f, adm_file, path = "benchmark/age_sex_structures", par
   year <- str_split(basename(f), pattern = "_")[[1]][[4]]
   output_folder <- file.path(param$model_path, path)
   dir.create(output_folder, recursive = TRUE, showWarnings = FALSE)
-  file_name <- glue::glue("{sex}_{age}_{param$year}_{param$iso3c}.tif")
+  file_name <- glue::glue("{sex}_{age}_{param$base_year}_{param$iso3c}.tif")
   output_file <- glue::glue("{output_folder}/{file_name}")
   cat(basename(output_file), "\n")
   r <- clip_country(f, adm_file)
-  plot(r, main = basename(output_file))
+  #plot(r, main = basename(output_file))
   writeRaster(r, filename = output_file, overwrite = TRUE)
 }
 
 # Clip all files
 walk(files, clip_age_sex, adm_file = adm, param = param)
+
 
 # AGGREGATE OVER ADM ---------------------------------------------------------------------
 # Clipped age_sex files
@@ -62,8 +63,7 @@ aggregate_age_sex <- function(f, adm_file){
 
 
 # Aggregate over adm
-age_sex_raw <- map_df(files, aggregate_age_sex, adm) %>%
-  arrange(adm1_name, sex, age, year)
+age_sex_raw <- map_df(files, aggregate_age_sex, adm)
 
 
 # ========================================================================================
@@ -73,4 +73,11 @@ age_sex_raw <- map_df(files, aggregate_age_sex, adm) %>%
 saveRDS(age_sex_raw, file.path(param$model_path,
                                glue("benchmark/subnat_age_sex_by_raw_{param$iso3c}.rds")))
 
+
+
+# ========================================================================================
+# CLEAN UP -------------------------------------------------------------------------------
+# ========================================================================================
+
+rm(adm, age_sex_raw, clip_age_sex, aggregate_age_sex, files)
 

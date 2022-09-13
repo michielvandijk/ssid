@@ -16,28 +16,33 @@
 #'the basis of the alpha-3 country code. This information is required to extract
 #'country specific information from several datasets.
 #'
-#'@param model_path character string with the main model folder. Note that R uses
+#'@param model_path character. Folder where the model files are stored. Note that R uses
 #'  forward slash or double backslash to separate folder names.
-#'@param db_path character string with location of the ssid_db folder.
-#'@param iso3c character string with the three letter ISO 3166-1 alpha-3 country
+#'@param db_path character. Folder where the input database is stored.
+#'@param iso3c character. Three letter ISO 3166-1 alpha-3 country
 #'  code, also referred to as iso3c. A list of country codes can be found in
 #'  [Wikipedia](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3).
-#'@param year numeric with the base year of the model.
-#'@param end_year numeric with the end year of the simulation period
+#'@param adm_level numeric. Administrative unit level at which the model is run. This needs to correspond with
+#'the information in the shapefile of the administrative units, which is needed as input.
+#'@param base_year numeric. Base year of the model, normally the year of the household survey.
+#'@param start_year numeric. Start year of the simulation period.
+#'@param end_year numeric. End year of the simulation period.
 #'
 #'@return ssid_par object
 #'
 #'@examples
 #'\dontrun{
 #'ssid_par(model_path = "C:/temp/ssid_eth", db_path = "C:/temp/ssid_db",
-#'iso3c = "ETH", year = 2018)
+#'iso3c = "ETH", adm_level = 2, base_year = 2018, start_year = 2018, end_year = 2050)
 #'}
 #'@export
 ssid_par <-
     function(model_path = NULL,
              db_path = NULL,
              iso3c = NULL,
-             year = NULL,
+             adm_level = NULL,
+             base_year = NULL,
+             start_year = NULL,
              end_year = NULL) {
 
       param <- list(
@@ -45,7 +50,9 @@ ssid_par <-
             country = ifelse(!is.null(iso3c), countrycode::countrycode(iso3c, "iso3c", "country.name"), NA_character_),
             iso3n = ifelse(!is.null(iso3c), countrycode::countrycode(iso3c, "iso3c", "iso3n"), NA_character_),
             continent = ifelse(!is.null(iso3c), countrycode::countrycode(iso3c, "iso3c", "continent"), NA_character_),
-            year = year,
+            adm_level = adm_level,
+            base_year = base_year,
+            start_year = start_year,
             end_year = end_year,
             model_path = model_path,
             db_path = db_path,
@@ -73,25 +80,43 @@ validate_ssid_par <- function(param) {
            call. = FALSE)
     }
   }
-  if (is.null(param$year)) {
-    stop("year is not defined",
+  if (is.null(param$adm_level)) {
+    stop("adm_level is not defined",
          call. = FALSE)
   } else {
-    if(!is.numeric(param$year)) {
-      stop("year is not a value",
+    if(!is.numeric(param$adm_level)) {
+      stop("adm_level is not an integer",
+           call. = FALSE)
+    }
+  }
+  if (is.null(param$base_year)) {
+    stop("base_year is not defined",
+         call. = FALSE)
+  } else {
+    if(!is.numeric(param$base_year)) {
+      stop("base_year is not an integer",
            call. = FALSE)
     } else {
-      if(param$year < 2000 | param$year > 2030) {
-        message("year seems to have an unrealistic value")
+      if(param$base_year < 2000 | param$base_year > 2030) {
+        message("base_year seems to have an unrealistic value")
       }
+    }
+  }
+  if (is.null(param$start_year)) {
+    stop("start_year is not defined",
+         call. = FALSE)
+  } else {
+    if(!is.numeric(param$start_year)) {
+      stop("start_year is not an integer",
+           call. = FALSE)
     }
   }
   if (is.null(param$end_year)) {
     stop("end_year is not defined",
          call. = FALSE)
   } else {
-    if(!is.numeric(param$year)) {
-      stop("end_year is not a value",
+    if(!is.numeric(param$end_year)) {
+      stop("end_year is not an integer",
            call. = FALSE)
     }
   }

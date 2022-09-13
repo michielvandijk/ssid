@@ -1,37 +1,15 @@
 # ========================================================================================
-# Project:  simFNS
+# Project:  sidd
 # Subject:  Script to compare adm map and adm info in survey
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl
 # ========================================================================================
 
 # ========================================================================================
-# SETUP ----------------------------------------------------------------------------------
+# SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-# Load pacman for p_load
-if(!require(pacman)) install.packages("pacman")
-library(pacman)
-
-# Load key packages
-p_load(here, tidyverse, readxl, stringr, scales, glue)
-
-# Load additional packages
-p_load(haven, labelled, janitor, sf, countrycode, powerjoin)
-
-# Set path
-source(here("working_paper/scripts/support/set_path.r"))
-
-# R options
-options(scipen = 999)
-options(digits = 4)
-
-
-# ========================================================================================
-# SET ISO3c ------------------------------------------------------------------------------
-# ========================================================================================
-
-iso3c_sel <- "BGD"
+source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
 
 # ========================================================================================
@@ -53,8 +31,8 @@ iso3c_sel <- "BGD"
 # ========================================================================================
 
 # adm information
-adm <- read_sav(file.path(raw_path,
-                          glue("household_surveys/{iso3c_sel}/hies_2016/data/hh_sec_a.sav")))
+adm <- read_sav(file.path(param$db_path,
+                          glue("household_surveys/{param$iso3c}/hies_2016/data/hh_sec_a.sav")))
 
 
 # add BGD iso3c country code (050) and leading zeros so lenght of id is always 3
@@ -91,20 +69,20 @@ n_distinct(adm_list_survey$adm3_name) # Note that there must be duplicate adm na
 # ========================================================================================
 
 # IPUMS adm2 world map
-adm1_wld <- st_read(file.path(raw_path, "ipums/shapefiles/world_geolev1_2019/world_geolev1_2019.shp"))
-adm2_wld <- st_read(file.path(raw_path, "ipums/shapefiles/world_geolev2_2019/world_geolev2_2019.shp"))
+adm1_wld <- st_read(file.path(param$db_path, "ipums/shapefiles/world_geolev1_2019/world_geolev1_2019.shp"))
+adm2_wld <- st_read(file.path(param$db_path, "ipums/shapefiles/world_geolev2_2019/world_geolev2_2019.shp"))
 
 # Process
 adm1_source1 <- adm1_wld %>%
-  filter(CNTRY_CODE == paste0("0", countrycode(iso3c_sel, "iso3c", "un"))) %>%
-  transmute(adm0_code = iso3c_sel,
+  filter(CNTRY_CODE == paste0("0", countrycode(param$iso3c, "iso3c", "un"))) %>%
+  transmute(adm0_code = param$iso3c,
             adm1_name = toupper(ADMIN_NAME),
             adm1_code = GEOLEVEL1) %>%
   st_make_valid()
 
 adm2_source1 <- adm2_wld %>%
-  filter(CNTRY_CODE == paste0("0", countrycode(iso3c_sel, "iso3c", "un"))) %>%
-  transmute(adm0_code = iso3c_sel,
+  filter(CNTRY_CODE == paste0("0", countrycode(param$iso3c, "iso3c", "un"))) %>%
+  transmute(adm0_code = param$iso3c,
             adm2_name = toupper(ADMIN_NAME),
             adm2_code = GEOLEVEL2) %>%
   st_make_valid() # added to solve potential problems with 'Ring Self-intersection'
@@ -131,12 +109,12 @@ n_distinct(adm_list_map1$adm2_name)
 # ========================================================================================
 
 # Unknown map
-adm_source2 <- st_read(file.path(raw_path, glue("adm/{iso3c_sel}/bgd_3cod_Q1/bgd_3cod_Q1.shp")))
+adm_source2 <- st_read(file.path(param$db_path, glue("adm/{param$iso3c}/bgd_3cod_Q1/bgd_3cod_Q1.shp")))
 
 # Process
 adm_list_map2 <- adm_source2 %>%
   st_drop_geometry() %>%
-  transmute(adm0_code = iso3c_sel, adm1_name = toupper(admin1Name), adm1_code = admin1Pcod,
+  transmute(adm0_code = param$iso3c, adm1_name = toupper(admin1Name), adm1_code = admin1Pcod,
             adm2_name = toupper(admin2Name), adm2_code = admin2Pcod, adm3_name = toupper(admin3Name),
             adm3_code = admin3Pcod)
 
@@ -155,12 +133,12 @@ n_distinct(adm_list_map2$adm3_name)
 # ========================================================================================
 
 # Map from https://data.humdata.org/dataset/cod-ab-bgd
-adm_source3 <- st_read(file.path(raw_path, glue("adm/{iso3c_sel}/bgd_adm_bbs_20201113_SHP/bgd_admbnda_adm3_bbs_20201113.shp")))
+adm_source3 <- st_read(file.path(param$db_path, glue("adm/{param$iso3c}/bgd_adm_bbs_20201113_SHP/bgd_admbnda_adm3_bbs_20201113.shp")))
 
 # Process
 adm_list_map3 <- adm_source3 %>%
   st_drop_geometry() %>%
-  transmute(adm0_code = iso3c_sel, adm1_name = toupper(ADM1_EN), adm1_code = ADM1_PCODE,
+  transmute(adm0_code = param$iso3c, adm1_name = toupper(ADM1_EN), adm1_code = ADM1_PCODE,
             adm2_name = toupper(ADM2_EN), adm2_code = ADM2_PCODE, adm3_name = toupper(ADM3_EN),
             adm3_code = ADM3_PCODE)
 
@@ -180,11 +158,32 @@ n_distinct(adm_list_map2$adm3_name)
 
 # Map supplied by Syed Islam
 # this map seems rather messy - we do not use it
-adm_source4 <- st_read(file.path(raw_path, glue("adm/{iso3c_sel}/Bangladesh_Admin_Boundary-20220217T082840Z-001/BD_Upazila_WGS84.shp")))
+adm_source4 <- st_read(file.path(param$db_path, glue("adm/{param$iso3c}/Bangladesh_Admin_Boundary-20220217T082840Z-001/BD_Upazila_WGS84.shp")))
 
 # Process
 adm_list_map4 <- adm_source4 %>%
   st_drop_geometry()
+
+
+# ========================================================================================
+# ADM LIST FOR MAP 5 ---------------------------------------------------------------------
+# ========================================================================================
+
+# IPUMS BGD 2011 map
+# The map with the adms as defined in the population census of 2011
+adm1_source5 <- st_read(file.path(param$db_path, glue("adm/{param$iso3c}/geo1_bd2011/geo1_bd2011.shp")))
+adm2_source5 <- st_read(file.path(param$db_path, glue("adm/{param$iso3c}/geo2_bd2011/geo2_bd2011.shp")))
+
+# Process
+adm1_list_map5 <- adm1_source5 %>%
+  st_drop_geometry() %>%
+  transmute(adm1_code = IPUM2011, adm1_name = toupper(ADMIN_NAME))
+
+adm_list_map5 <- adm2_source5 %>%
+  st_drop_geometry() %>%
+  transmute(adm1_code = PARENT, adm2_name = toupper(ADMIN_NAME), adm2_code = ZILA2011) %>%
+  left_join(adm1_list_map5)
+
 
 
 # ========================================================================================
@@ -319,3 +318,51 @@ check3_adm3 <- full_join(
     unique()
 ) %>%
   filter(is.na(source1) | is.na(source2))
+
+
+# SURVEY AND MAP 5 -----------------------------------------------------------------------
+
+# adm 1
+check5_adm1 <- full_join(
+  adm_list_survey %>%
+    dplyr::select(adm1_name) %>%
+    mutate(source1 = "survey") %>%
+    unique(),
+  adm_list_map5 %>%
+    dplyr::select(adm1_name) %>%
+    mutate(source2 = "map5") %>%
+    unique()
+)
+
+# adm 2
+# Apply a few fixes in the names
+adm_list_survey <- adm_list_survey %>%
+  mutate(adm2_name = case_when(
+    adm2_name == "BRAHMANBARIA" ~ "BRAHAMANBARIA",
+    adm2_name == "KISHOREGONJ" ~ "KISHOREGANJ",
+    adm2_name == "CHAPAI NABABGANJ" ~ "NAWABGANJ",
+    TRUE ~ adm2_name)
+  )
+
+adm_list_map5 <- adm_list_map5 %>%
+  mutate(adm2_name = case_when(
+    adm2_name == "BRAHMANBARIA" ~ "BRAHAMANBARIA",
+    adm2_name == "JHENAIDAHA" ~ "JHENAIDAH",
+    adm2_name == "MAULVI BAZAR" ~ "MAULVIBAZAR",
+    adm2_name == "CHAPAI NABABGANJ" ~ "NAWABGANJ",
+    adm2_name == "NETROKONA" ~ "NETRAKONA",
+    TRUE ~ adm2_name)
+  )
+
+check5_adm2 <- full_join(
+  adm_list_survey %>%
+    dplyr::select(adm2_name) %>%
+    mutate(source1 = "survey") %>%
+    unique(),
+  adm_list_map5 %>%
+    dplyr::select(adm2_name) %>%
+    mutate(source2 = "map5") %>%
+    unique()
+)
+
+

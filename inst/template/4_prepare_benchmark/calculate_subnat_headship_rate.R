@@ -1,51 +1,30 @@
 # ========================================================================================
-# Project:  simFNS
+# Project:  sidd
 # Subject:  process number of households data
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl
 # ========================================================================================
 
-# ========================================================================================
-# SETUP ----------------------------------------------------------------------------------
-# ========================================================================================
-
-# Load pacman for p_load
-if(!require(pacman)) install.packages("pacman")
-library(pacman)
-
-# Load key packages
-p_load(here, tidyverse, readxl, stringr, scales, glue)
-
-# Load additional packages
-p_load(ipumsr, sf, janitor)
-
-# Set path
-source(here("working_paper/scripts/support/set_path.r"))
-
-# R options
-options(scipen = 999)
-options(digits = 4)
-
 
 # ========================================================================================
-# SET ISO3c AND BASE YEAR ----------------------------------------------------------------
+# SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-iso3c_sel <- "ETH"
-by_sel <- 2018
+source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
 
 # ========================================================================================
 # LOAD DATA ------------------------------------------------------------------------------
 # ========================================================================================
 
-# ipums
-ddi <- read_ipums_ddi(file.path(raw_path, glue("ipums/{iso3c_sel}/2007/ipumsi_00002.xml")))
+# The sample fraction can be found on the IPUMS website:
+# https://international.ipums.org/international-action/samples
+sample_fraction <- 1/0.05
+ddi <- read_ipums_ddi(file.path(param$db_path, glue("ipums/{param$iso3c}/2011/ipumsi_00005.xml")))
 ipums_raw <- read_ipums_micro(ddi, verbose = FALSE)
 
-# adm1 map consistent with microsim
-# NOTE THAT WE USE ADM1 HERE BUT THIS IS NOT ALWAYS THE CASE! ALSO CHECH BELOW WHEN NAMES ARE MATCHED.
-adm <- readRDS(file.path(proc_path, glue("adm/adm1_{iso3c_sel}.rds")))
+# adm
+adm <- readRDS(file.path(param$model_path, glue("adm/adm_{param$iso3c}.rds")))
 
 
 # ========================================================================================
@@ -55,9 +34,9 @@ adm <- readRDS(file.path(proc_path, glue("adm/adm1_{iso3c_sel}.rds")))
 # Process IPUMS
 ipums <- ipums_raw %>%
   mutate(
-    adm1_name = as.character(as_factor(GEO1_ET2007)),
-    adm2_name = as.character(as_factor(GEO2_ET2007))) %>%
-  dplyr::select(-WERDET, -GEO1_ET2007, -GEO2_ET2007) %>%
+    adm1_name = toupper(as.character(as_factor(GEO1_BD2011))),
+    adm2_name = toupper(as.character(as_factor(GEO2_BD2011)))
+    ) %>%
   clean_names() %>%
   droplevels
 
@@ -65,43 +44,66 @@ ipums <- ipums_raw %>%
 ipums <- ipums %>%
   mutate(across(where(is.labelled), as_factor))
 
-# check match in adm1 names
-adm_match <- adm %>%
-  st_drop_geometry() %>%
-  transmute(adm1_name, adm1_code, source1 = "adm") %>%
-  full_join(ipums %>%
-              dplyr::select(adm1_name) %>%
-              unique() %>%
-              mutate(source2 = "ipums")
-  )
 
-# Special region is not listed as one of the regions in the lsms-isa and most
-# likely part of the Afar region (see adm construction). The census only includes
-# a very small number of people. We merge the target regions and allocate them to
-# Affar
+# COMPARE ADM NAMES ----------------------------------------------------------------------
+
+# MYMENSINGH is not a separate adm in ipums
+# adm 1
+check_adm1 <- full_join(
+  adm %>%
+    st_drop_geometry() %>%
+    dplyr::select(adm1_name) %>%
+    mutate(source1 = "map") %>%
+    unique(),
+  ipums %>%
+    dplyr::select(adm1_name) %>%
+    mutate(source2 = "ipums") %>%
+    unique()
+)
+
+# adm 2
+check_adm2 <- full_join(
+  adm %>%
+    st_drop_geometry() %>%
+    dplyr::select(adm1_name, adm2_name) %>%
+    mutate(adm2_name = case_when(
+      adm2_name == "BRAHAMANBARIA" ~ "BRAHMANBARIA",
+      adm2_name == "JHENAIDAH" ~ "JHENAIDAHA",
+      adm2_name == "MAULVIBAZAR" ~ "MAULVI BAZAR",
+      adm2_name == "NAWABGANJ" ~ "CHAPAI NABABGANJ",
+      adm2_name == "NETRAKONA" ~ "NETROKONA",
+      TRUE ~ adm2_name),
+      source1 = "map") %>%
+    unique(),
+  ipums %>%
+    dplyr::select(adm2_name) %>%
+    mutate(source2 = "ipums") %>%
+    unique()
+)
+
+# ALIGN ADM ------------------------------------------------------------------------------
+
+# Perfect match!. Now we want to know which adm2 units are part of MYMENSINGH.
+mymensingh <- check_adm2 %>%
+  filter(adm1_name == "MYMENSINGH") %>%
+  dplyr::select(adm2_name) %>%
+  pull()
+
 ipums <- ipums %>%
   mutate(
-    adm1_name =  case_when(
-      adm1_name == "Southern Nations, Nationalities, and People (SNNP)" ~ "SNNP",
-      adm1_name == "Special region" ~ "Affar",
-      adm1_name == "Gambella" ~ "Gambela",
-      adm1_name == "Oromiya" ~ "Oromia",
-      TRUE ~ adm1_name))  %>%
-  left_join(adm %>%
-              st_drop_geometry()) 
-  
+    adm1_name = case_when(
+      adm2_name %in% mymensingh ~ "MYMENSINGH",
+      TRUE ~ adm1_name
+    )
+  )
+
 
 # ========================================================================================
 # CALCULATE HEADSHIP RATE ----------------------------------------------------------------
 # ========================================================================================
 
-# The sample fraction can be found on the IPUMS website:
-# https://international.ipums.org/international-action/samples
-sample_fraction <- 1/0.1 
-
 # We use 10 year age groups to keep it simple
 # We calculate the headship rate at adm1 as number of observations at adm2 is limited in some cases
-# Note that for m15 the headship rate is Inf as there are no heads in this age group.
 headship_rate <- ipums %>%
   mutate(
     age = fct_relabel(age2, ~ gsub(" to ", "_", .x)),
@@ -118,24 +120,20 @@ headship_rate <- ipums %>%
     head = ifelse(relate == "Head", "Y", "N")
   ) %>%
   droplevels() %>%
-  group_by(age, sex, adm1_name, adm1_code) %>%
+  group_by(age, sex, adm1_name) %>%
   summarize(
     n_head = sum(head == "Y"),
     n = n(),
-    h = n/n_head,
+    h = n_head / n,
     .groups = "drop"
-  ) %>%
-  mutate(h = ifelse(is.infinite(h), 0, h))
-
+  )
 sum(headship_rate$n_head)
-hist(headship_rate$h, breaks = 50)
 
 
 # ========================================================================================
 # SAVE -----------------------------------------------------------------------------------
 # ========================================================================================
 
-dir.create(file.path(proc_path, "benchmark"), recursive = TRUE, showWarnings = FALSE)
-saveRDS(headship_rate, file.path(proc_path,
-                               glue("benchmark/headship_rate_{iso3c_sel}.rds")))
+saveRDS(headship_rate, file.path(param$model_path,
+                               glue("benchmark/headship_rate_{param$iso3c}.rds")))
 
