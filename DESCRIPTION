@@ -28,6 +28,9 @@ Imports:
     dplyr,
     exactextractr,
     furrr,
+    future,
     glue,
     ipfr,
+    parallelly,
+    progressr,
     sf

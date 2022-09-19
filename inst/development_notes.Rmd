@@ -8,6 +8,7 @@ output: pdf_document
 # Functions to add in the package
 
 -   Function that checks consistency of the person and hh data - see checks in script.
+- Update create_weights_plot and improve loop in script
 
 # Settings
 
@@ -27,4 +28,24 @@ I would argue they are included ag_othlowsk in this case as this category captur
 But it is not clear how they are counted in other data pieces.
 
 Check calculation of hh heads and why it differs so much in some regions (see BGD)
+
+# Consistency
+
+Need to rename occ to occupation in occ projections as this is the header we also use in per_db!
+
+
+# Methodology
+- Can we calculate the headship rate from the LSMS at the adm1, if LSMS is representative at adm1?
+- Check consistency between real population and that implied by simulation (hh_weight x hh_size): See note in simulate_income_change.R Also check calculation of hh_size!!
+- Check contribution of not_in_lf to income change. Now we estimate wage and add but perhaps set to zero contribution simular to m15?
+
+
+# Indicators
+
+- Calculate poverty headcount per adm2 and per urban/rural
+- Create maps of poverty headcount total, urban/rural
+- Create bar chart of poverty headcount/change per adm2
+- Select examplatory regions (one with large transition from rural to urban? or one with bigest change in pov)
+
+
 

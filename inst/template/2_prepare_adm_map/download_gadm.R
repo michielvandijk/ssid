@@ -33,7 +33,7 @@ options(digits = 4)
 # SET ISO3C ------------------------------------------------------------------------------
 # ========================================================================================
 
-iso3c_sel <- "ETH"
+param$iso3c <- "ETH"
 
 
 # ========================================================================================
@@ -41,21 +41,21 @@ iso3c_sel <- "ETH"
 # ========================================================================================
 
 # Download GADM adm0 for ETH using raster
-adm0 <- getData(name = "GADM", country = iso3c_sel, 
+adm0 <- getData(name = "GADM", country = param$iso3c, 
                 level = 0, 
-                path = file.path(proc_path, glue("adm")))
+                path = file.path(param$model_path, glue("adm")))
 
-adm0 <- getData(name = "GADM", country = iso3c_sel, 
+adm0 <- getData(name = "GADM", country = param$iso3c, 
                 level = 1, 
-                path = file.path(proc_path, glue("adm")))
+                path = file.path(param$model_path, glue("adm")))
 
-adm2 <- getData(name = "GADM", country = iso3c_sel, 
+adm2 <- getData(name = "GADM", country = param$iso3c, 
                 level = 2, 
-                path = file.path(proc_path, glue("adm")))
+                path = file.path(param$model_path, glue("adm")))
 
-adm3 <- getData(name = "GADM", country = iso3c_sel, 
+adm3 <- getData(name = "GADM", country = param$iso3c, 
                 level = 3, 
-                path = file.path(proc_path, glue("adm")))
+                path = file.path(param$model_path, glue("adm")))
 
 
 # ========================================================================================
@@ -84,7 +84,7 @@ plot(adm3_simple$geometry)
 # SAVE -----------------------------------------------------------------------------------
 # ========================================================================================
 
-saveRDS(adm0, file.path(proc_path, glue("adm/gadm36_ETH_0_s.rds")))
-saveRDS(adm1, file.path(proc_path, glue("adm/gadm36_ETH_1_s.rds")))
-saveRDS(adm2, file.path(proc_path, glue("adm/gadm36_ETH_2_s.rds")))
-saveRDS(adm3, file.path(proc_path, glue("adm/gadm36_ETH_3_s.rds")))
+saveRDS(adm0, file.path(param$model_path, glue("adm/gadm36_ETH_0_s.rds")))
+saveRDS(adm1, file.path(param$model_path, glue("adm/gadm36_ETH_1_s.rds")))
+saveRDS(adm2, file.path(param$model_path, glue("adm/gadm36_ETH_2_s.rds")))
+saveRDS(adm3, file.path(param$model_path, glue("adm/gadm36_ETH_3_s.rds")))

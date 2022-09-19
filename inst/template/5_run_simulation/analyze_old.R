@@ -1,37 +1,18 @@
 # ========================================================================================
-# Project:  simFNS
+# Project:  sidd
 # Subject:  Script to analyze spatial simulations
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl
 # ========================================================================================
 
-# ========================================================================================
-# SETUP ----------------------------------------------------------------------------------
-# ========================================================================================
-
-# Load pacman for p_load
-if(!require(pacman)) install.packages("pacman")
-library(pacman)
-
-# Load key packages
-p_load(here, tidyverse, readxl, stringr, scales, glue)
-
 # Load additional packages
 p_load(haven, sf, ggridges, ggpubr)
 
-# Set path
-source(here("working_paper/scripts/support/set_path.r"))
-
-# R options
-options(scipen = 999)
-options(digits = 4)
-
-
 # ========================================================================================
-# SET ISO3c ------------------------------------------------------------------------------
+# SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-iso3c_sel <- "ETH"
+source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
 
 # ========================================================================================
@@ -39,11 +20,11 @@ iso3c_sel <- "ETH"
 # ========================================================================================
 
 # simulation
-version <- "2022-05-31"
-sim_db <- readRDS(file.path(proc_path, glue("simulation/{version}/sim_db_{iso3c_sel}.rds")))
+version <- "2022-09-16"
+sim_db <- readRDS(file.path(param$model_path, glue("simulation/{version}/sim_db_{param$iso3c}.rds")))
 
 # WDI data
-wdi_raw <- readRDS(file.path(raw_path, glue("wdi/wdi.rds")))
+wdi_raw <- readRDS(file.path(param$db_path, glue("wdi/wdi.rds")))
 
 # ========================================================================================
 # PREPARE --------------------------------------------------------------------------------
@@ -55,41 +36,21 @@ wdi_raw <- readRDS(file.path(raw_path, glue("wdi/wdi.rds")))
 # SDG 1 ASSESSMENT -----------------------------------------------------------------------
 # ========================================================================================
 
-# INDICATOR 1.1.1 Proportion of the population living below the international poverty line by sex, age, employment status and geographic location (urban/rural)
-
-#'
-#' P3 eth pov assessment 2014 compares international and national pov rates. Seems national uses per adult e
-# equivalent en international per capita. We can show both.
-#'
-# Chapter IV of 2020 pov assessment provides poverty analysis on the basis of the ESS.
-# Difference between rural and urban poverty in regions (see p33 2019 assessment and also 2020 assessment)
-
-# Estmate delay in achieving SDG at subnational level (or show which regions do not make it)
-
-
-# TO do
-
-# - Calculate poverty headcount per adm2 and per urban/rural
-# - Create maps of poverty headcount total, urban/rural
-# - Create bar chart of poverty headcount/change per adm2
-# - Select examplatory regions (one with large transition from rural to urban? or one with bigest change in pov)
-# - Validation
-
 # PREPARE POVERTY LINE -------------------------------------------------------------------
 
 ipl <- 1.9
 pl_db <- wdi_raw %>%
-  filter(adm0_code == "ETH") %>%
+  filter(adm0_code == param$iso3c) %>%
   mutate(across(everything(), zap_label)) %>%
-  filter(adm0_code == iso3c_sel) %>%
+  filter(adm0_code == param$iso3c) %>%
   dplyr::select(year, FP.CPI.TOTL, PA.NUS.PRVT.PP) %>%
   mutate(
     cpi_2011 = FP.CPI.TOTL / FP.CPI.TOTL[year == 2011],
     ppp_2011 = PA.NUS.PRVT.PP[year == 2011],
     pl = ipl * ppp_2011 * cpi_2011 * 365
   ) %>%
-  filter(year %in% c(2010:2018))
-pl <- pl_db$pl[pl_db$year == 2018]
+  filter(year %in% c(2010:param$base_year))
+pl <- pl_db$pl[pl_db$year == param$base_year]
 
 
 
@@ -238,7 +199,7 @@ hci_adm2 %>%
 # Adm
 
 library(sf)
-adm <- readRDS(file.path(proc_path, glue("adm/adm2_{iso3c_sel}.rds")))
+adm <- readRDS(file.path(param$model_path, glue("adm/adm_{param$iso3c}.rds")))
 
 adm_s <- st_simplify(adm, dTolerance = 5000)
 plot(adm_s$geometry)
@@ -309,7 +270,7 @@ ggplot(data = sim_db, aes(
 
 driver_impact <- bind_rows(
   sim_db %>%
-    filter(year == 2018) %>%
+    filter(year == param$base_year) %>%
     mutate(
       per_income_comp = per_income_proj,
       driver = "initial"
@@ -356,10 +317,11 @@ ggplot() +
 # Impact of urbanization and occ change seems small
 # CHECK projections for urbanization and occ change. Perhaps drivers are small.
 
+adm_sel <- "DHAKA"
 
 ggplot() +
   geom_density(
-    data = filter(sim_db, adm1_name == "Southern Nations, Nationalities, and People (SNNP)"), aes(
+    data = filter(sim_db, adm1_name == adm_sel), aes(
       x = log(pc_income), weight = per_weight,
       color = interaction(year, scenario)
     ),
@@ -376,20 +338,7 @@ ggplot(data = sim_df, aes(log(pc_income), color = interaction(year, scenario))) 
   stat_ecdf(geom = "step")
 
 
-pl <- 11.628 * 1.9 * 365
-pl <- pl_db$pl[pl_db$year == 2018]
-x <- filter(sim_df, year == 2018, per_income_proj < pl)
-xx <- filter(sim_df, year == 2018)
-quantile(xx$pc_income)
-pov <- sum(x$per_weight)
-tot <- sum(xx$per_weight)
-pov / tot
 
-
-# Create poverty incidence curves (p 94 Poverty handbook)
-
-
-# Bar chart for base year with dots for 2050 (different scenarios)
 
 
 
@@ -423,7 +372,7 @@ dens <- sim_db %>%
   #split(list(.$scenario, .$year)) %>%
   map_dfr(ds, .id = "id") %>%
   separate(id, into = c("year", "scenario"), sep = "_")
-  
+
 # Create poverty headcount labels
 lab <- dens %>%
   group_by(year, scenario) %>%
@@ -434,7 +383,7 @@ lab <- dens %>%
 library(gganimate)
 anim <- ggplot(data = dens, aes(x,y, label = hc)) +
   #geom_text(data = lab, aes(label = hc, x = 8.8, y = 0.65)) +
-  geom_ribbon(data = filter(dens, x < (pl)), aes(x=x, ymax = y), ymin=0, fill = col_cb[3]) + 
+  geom_ribbon(data = filter(dens, x < (pl)), aes(x=x, ymax = y), ymin=0, fill = col_cb[3]) +
   geom_ribbon(data = filter(dens, x > (pl)), aes(x=x, ymax = y), ymin=0, fill = col_cb[4]) +
   facet_grid(~scenario) +
   geom_vline(xintercept = (pl), linetype = "dashed") +
@@ -448,8 +397,8 @@ anim <- ggplot(data = dens, aes(x,y, label = hc)) +
   ease_aes('cubic-in-out') +
   ggtitle('Year: {closest_state}') +
   #theme_bw() +
-  rremove("grid") 
+  rremove("grid")
 
-animate(anim, fps = 20, height = 400, width = 600)  
-anim_save(file.path(proc_path, glue("simulation/{version}/ssp1_3_animation_district.gif")), anim, 
+animate(anim, fps = 20, height = 400, width = 600)
+anim_save(file.path(param$model_path, glue("simulation/{version}/ssp1_3_animation_district.gif")), anim,
           fps = 20, height = 400, width = 600)

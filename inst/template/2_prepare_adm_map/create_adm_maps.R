@@ -53,6 +53,7 @@ adm_list <- adm2 %>%
 
 dir.create(file.path(param$model_path, "adm"), showWarnings = FALSE, recursive = TRUE)
 write_csv(adm_list, file.path(param$model_path, glue("adm/adm_list_{param$iso3c}.csv")))
+saveRDS(adm_list, file.path(param$model_path, glue("adm/adm_list_{param$iso3c}.rds")))
 saveRDS(adm2, file.path(param$model_path, glue("adm/adm_{param$iso3c}.rds")))
 
 # saveRDS(adm1, file.path(param$model_path, glue("adm/adm1_{param$iso3c}.rds")))

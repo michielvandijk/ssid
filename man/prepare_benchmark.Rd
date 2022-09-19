@@ -4,10 +4,10 @@
 \alias{prepare_benchmark}
 \title{Title}
 \usage{
-prepare_benchmark(hh, u_r, a_s, occupation)
+prepare_benchmark(hh, u_r, a_s, oc)
 }
 \arguments{
-\item{occupation}{}
+\item{oc}{occupation data}
 }
 \value{
 

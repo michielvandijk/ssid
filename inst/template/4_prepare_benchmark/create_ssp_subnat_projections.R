@@ -625,8 +625,7 @@ subnat_occ_proj <- subnat_wa_proj %>%
       age == "working_age" & !is.na(occ_share) ~ population * lf_share * occ_share
     )
   ) %>%
-  dplyr::select(-labor_force, -lf_share, -occ_share, -age, -population) %>%
-  rename(variable = occ)
+  dplyr::select(-labor_force, -lf_share, -occ_share, -age, -population)
 
 
 # ========================================================================================
@@ -708,7 +707,7 @@ subnat_age_sex_proj_m15 <- subnat_age_sex_proj %>%
 
 # Subnat occupation projections
 subnat_occ_proj_m15 <- subnat_occ_proj %>%
-  filter(variable != "m15")
+  filter(occ != "m15")
 
 # Subnat urban-rural projections
 # We subtract the m15 category. We allocate m15 to urban/rural using share of urban/rural in total

@@ -11,7 +11,7 @@
 #' @param max_ratio
 #' @param min_ratio
 #' @param relative_gap
-#' @param absolute_gap
+#' @param absolute_diff
 #'
 #' @return
 #' @export
@@ -19,7 +19,7 @@
 #' @examples
 ipf_seed <- function(reg_tz, hh_s, per_s, bm, p, reg_sample = FALSE, verbose = FALSE,
                      max_iter = 300, max_ratio = 5, min_ratio = 0.2,
-                     relative_gap = 0.01, absolute_gap = 10){
+                     relative_gap = 0.01, absolute_diff = 10){
 
   # To display progress bar in combination with furrr and progressr
   p()
@@ -62,8 +62,7 @@ ipf_seed <- function(reg_tz, hh_s, per_s, bm, p, reg_sample = FALSE, verbose = F
   per_t_r[["occupation"]] <- bm$per_bm$per_occ
   per_t_r <- lapply(per_t_r, prep_target, reg, tz)
 
-  sim <- ipu(hh_s_r, hh_t_r, per_s_r, per_t_r, max_iterations = max_iter, verbose = verbose,
-             max_ratio = max_ratio, min_ratio = min_ratio, relative_gap = relative_gap)
+  sim <- ipfr::ipu(hh_s_r, hh_t_r, per_s_r, per_t_r, max_iterations = max_iter, verbose = verbose,
+             max_ratio = max_ratio, min_ratio = min_ratio, relative_gap = relative_gap, absolute_diff = absolute_diff)
   return(sim)
 }
-

@@ -3,13 +3,13 @@
 #' @param hh
 #' @param u_r
 #' @param a_s
-#' @param occupation
+#' @param oc occupation data
 #'
 #' @return
 #' @export
 #'
 #' @examples
-prepare_benchmark <- function(hh, u_r, a_s, occupation){
+prepare_benchmark <- function(hh, u_r, a_s, oc){
 
   # Extract hh_number for all zones
   hh_number <- hh %>%
@@ -36,12 +36,12 @@ prepare_benchmark <- function(hh, u_r, a_s, occupation){
     distinct() %>%
     pivot_wider(names_from = sex, values_from = value, values_fill = 0)
 
-  per_occ <- occ %>%
-    dplyr::select(target_zone = adm2_code, region = adm1_name, scenario, year, variable, value) %>%
-    group_by(scenario, year, target_zone, region, variable) %>%
+  per_occ <- oc %>%
+    dplyr::select(target_zone = adm2_code, region = adm1_name, scenario, year, occ, value) %>%
+    group_by(scenario, year, target_zone, region, occ) %>%
     summarize(value = sum(value, na.rm = TRUE), .groups = "drop") %>%
     distinct() %>%
-    pivot_wider(names_from = variable, values_from = value, values_fill = 0)
+    pivot_wider(names_from = occ, values_from = value, values_fill = 0)
 
   hh_bm <- list(hh_number = hh_number)
   per_bm <- list(

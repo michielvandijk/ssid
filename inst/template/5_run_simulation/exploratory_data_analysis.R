@@ -5,35 +5,12 @@
 # Contact:  michiel.vandijk@wur.nl
 # ========================================================================================
 
-# ========================================================================================
-# SETUP ----------------------------------------------------------------------------------
-# ========================================================================================
-
-# Load pacman for p_load
-if(!require(pacman)){
-  install.packages("pacman")
-  library(pacman)
-} else {
-  library(pacman)
-}
-
-# Load key packages
-p_load("here", "tidyverse", "readxl", "stringr", "scales", "glue", "haven", "janitor",
-       "texreg", "dotwhisker", "broom")
-
-# Set path
-source(here("working_paper/scripts/support/set_path.r"))
-
-# R options
-options(scipen = 999)
-options(digits = 4)
-
 
 # ========================================================================================
-# SET ISO3c ------------------------------------------------------------------------------
+# SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-iso3c_sel <- "BGD"
+source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
 
 # ========================================================================================
@@ -41,35 +18,35 @@ iso3c_sel <- "BGD"
 # ========================================================================================
 
 # Seed
-hh_db <- readRDS(file.path(proc_path, glue("simulation/hh_db_{iso3c_sel}.rds")))
-per_db <- readRDS(file.path(proc_path, glue("simulation/per_db_{iso3c_sel}.rds")))
+hh_db <- readRDS(file.path(param$model_path, glue("simulation/hh_db_{param$iso3c}.rds")))
+per_db <- readRDS(file.path(param$model_path, glue("simulation/per_db_{param$iso3c}.rds")))
 
 # Adm_list
-adm_list <- readRDS(file.path(proc_path, glue("adm/adm_list_{iso3c_sel}.rds")))
+adm_list <- readRDS(file.path(param$model_path, glue("adm/adm_list_{param$iso3c}.rds")))
 
 # Subnat urban-rural projections
-subnat_urban_rural_proj <- readRDS(file.path(proc_path,
-                                             glue("benchmark/subnat_urban_rural_proj_{iso3c_sel}.rds")))
-subnat_urban_rural_proj_m15 <- readRDS(file.path(proc_path,
-                                                 glue("benchmark/subnat_urban_rural_proj_m15_{iso3c_sel}.rds")))
+subnat_urban_rural_proj <- readRDS(file.path(param$model_path,
+                                             glue("benchmark/subnat_urban_rural_proj_{param$iso3c}.rds")))
+subnat_urban_rural_proj_m15 <- readRDS(file.path(param$model_path,
+                                                 glue("benchmark/subnat_urban_rural_proj_m15_{param$iso3c}.rds")))
 
 # Subnat population projections
-subnat_age_sex_proj <- readRDS(file.path(proc_path,
-                                         glue("benchmark/subnat_age_sex_proj_{iso3c_sel}.rds")))
-subnat_age_sex_proj_m15 <- readRDS(file.path(proc_path,
-                                             glue("benchmark/subnat_age_sex_proj_m15_{iso3c_sel}.rds")))
+subnat_age_sex_proj <- readRDS(file.path(param$model_path,
+                                         glue("benchmark/subnat_age_sex_proj_{param$iso3c}.rds")))
+subnat_age_sex_proj_m15 <- readRDS(file.path(param$model_path,
+                                             glue("benchmark/subnat_age_sex_proj_m15_{param$iso3c}.rds")))
 
 # Subnat occupation projections
-subnat_occ_proj <- readRDS(file.path(proc_path,
-                                     glue("benchmark/subnat_occupation_proj_{iso3c_sel}.rds")))
-subnat_occ_proj_m15 <- readRDS(file.path(proc_path,
-                                         glue("benchmark/subnat_occupation_proj_m15_{iso3c_sel}.rds")))
+subnat_occ_proj <- readRDS(file.path(param$model_path,
+                                     glue("benchmark/subnat_occupation_proj_{param$iso3c}.rds")))
+subnat_occ_proj_m15 <- readRDS(file.path(param$model_path,
+                                         glue("benchmark/subnat_occupation_proj_m15_{param$iso3c}.rds")))
 
 # Subnat household projections
-subnat_hh_proj <- readRDS(file.path(proc_path,
-                                    glue("benchmark/subnat_hh_proj_{iso3c_sel}.rds")))
-subnat_hh_proj_m15 <- readRDS(file.path(proc_path,
-                                        glue("benchmark/subnat_hh_proj_m15_{iso3c_sel}.rds")))
+subnat_hh_proj <- readRDS(file.path(param$model_path,
+                                    glue("benchmark/subnat_hh_proj_{param$iso3c}.rds")))
+subnat_hh_proj_m15 <- readRDS(file.path(param$model_path,
+                                        glue("benchmark/subnat_hh_proj_m15_{param$iso3c}.rds")))
 
 
 # ========================================================================================
@@ -102,10 +79,10 @@ hh_occ <- per_db %>%
 
 # We only look at high-skill occupations as these will be problematic
 subnat_occ_proj %>%
-  filter(occupation %in% c("clerks", "off_mgr_pros", "service_shop", "tech_aspros")) %>%
+  filter(occ %in% c("clerks", "off_mgr_pros", "service_shop", "tech_aspros")) %>%
   filter(year %in% c(2018, 2050)) %>%
   ggplot() +
-    geom_col(aes(x = adm1_name, y = value, fill = occupation)) +
+    geom_col(aes(x = adm1_name, y = value, fill = occ)) +
     facet_wrap(~factor(year)) +
     theme(axis.text.x = element_text(angle = 90))
 
@@ -119,11 +96,11 @@ per_db  %>%
     theme(axis.text.x = element_text(angle = 90))
 
 subnat_occ_proj %>%
-  filter(occupation %in% c("clerks", "off_mgr_pros", "service_shop", "tech_aspros")) %>%
-  filter(year %in% c(2018)) %>%
-  group_by(adm1_name, occupation, year) %>%
+  filter(occ %in% c("clerks", "off_mgr_pros", "service_shop", "tech_aspros")) %>%
+  filter(year %in% param$base_year) %>%
+  group_by(adm1_name, occ, year) %>%
   summarize(value = sum(value, na.rm = TRUE)) %>%
-  pivot_wider(names_from = occupation, values_from = value)
+  pivot_wider(names_from = occ, values_from = value)
 
 per_db  %>%
   group_by(adm1_name, occupation) %>%
@@ -136,10 +113,10 @@ per_db  %>%
 
 # We only look at high-skill occupations as these will be problematic
 subnat_urban_rural_proj %>%
-  filter(year %in% c(2018, 2050)) %>%
+  filter(year %in% c(param$base_year, 2050)) %>%
   ggplot() +
     geom_col(aes(x = adm1_name, y = value, fill = urban_rural)) +
-    facet_wrap(~factor(year)) +
+    facet_grid(scenario~factor(year)) +
     theme(axis.text.x = element_text(angle = 90))
 
 per_db  %>%
@@ -152,7 +129,7 @@ per_db  %>%
     theme(axis.text.x = element_text(angle = 90))
 
 subnat_urban_rural_proj %>%
-  filter(year %in% c(2018, 2050)) %>%
+  filter(year %in% c(param$base_year, 2050)) %>%
   group_by(adm1_name, urban_rural, year) %>%
   summarize(value = sum(value, na.rm = TRUE),
             .groups = "drop") %>%
@@ -291,7 +268,7 @@ w_ni_ur_int <- lm(hh_income ~ 0 + not_emp*urban_rural + ag_othlowsk*urban_rural 
                   weights =  survey_hh_weight)
 
 w_ni_r <- lm(hh_income ~ 0 + not_emp + ag_othlowsk + p65 + service_shop + off_mgr_pros +
-               clerks + tech_aspros, 
+               clerks + tech_aspros,
              data = filter(hh_occ, urban_rural == "rural"),
              weights =  survey_hh_weight)
 
@@ -307,7 +284,7 @@ screenreg(list(w_ni, w_ni_ur_dum, w_ni_ur_int, w_ni_r, w_ni_u))
 dwplot(list(w_ni, w_ni_r, w_ni_u),
        dot_args = list(size = 2),
        vline = geom_vline(xintercept = 0, colour = "grey50", linetype = 2)) +
-  scale_color_discrete(labels = c("w_ni", "w_ni_r", "w_ni_u")) 
+  scale_color_discrete(labels = c("w_ni", "w_ni_r", "w_ni_u"))
 tidy(w_ni, conf.int = .95)
 
 

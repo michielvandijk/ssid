@@ -6,34 +6,10 @@
 # ========================================================================================
 
 # ========================================================================================
-# SETUP ----------------------------------------------------------------------------------
+# SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-# Load pacman for p_load
-if(!require(pacman)){
-  install.packages("pacman")
-  library(pacman)
-} else {
-  library(pacman)
-}
-
-# Load key packages
-p_load("here", "tidyverse", "readxl", "stringr", "scales", "glue", "haven", "labelled",
-       "texreg", "dotwhisker", "broom")
-
-# Set path
-source(here("working_paper/scripts/support/set_path.r"))
-
-# R options
-options(scipen = 999)
-options(digits = 4)
-
-
-# ========================================================================================
-# SET ISO3c ------------------------------------------------------------------------------
-# ========================================================================================
-
-iso3c_sel <- "ETH"
+source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
 
 # ========================================================================================
@@ -41,8 +17,9 @@ iso3c_sel <- "ETH"
 # ========================================================================================
 
 # seed
-hh_db <- readRDS(file.path(proc_path , glue("simulation/hh_db_{iso3c_sel}.rds")))
-per_db <- readRDS(file.path(proc_path , glue("simulation/per_db_{iso3c_sel}.rds")))
+hh_db <- readRDS(file.path(param$model_path , glue("simulation/hh_db_{param$iso3c}.rds")))
+per_db <- readRDS(file.path(param$model_path , glue("simulation/per_db_{param$iso3c}.rds")))
+
 
 # ========================================================================================
 # PREPARATION ----------------------------------------------------------------------------
@@ -70,7 +47,7 @@ w_ni <- lm(hh_income ~ 0 + not_in_lf + ag_othlowsk + p65 + service_shop + off_mg
 
 # Impact of urban_rural
 w_ni_r <- lm(hh_income ~ 0 + not_in_lf + ag_othlowsk + p65 + service_shop + off_mgr_pros +
-               clerks + tech_aspros, 
+               clerks + tech_aspros,
              data = filter(hh_occ, urban_rural == "rural"),
              weights =  survey_hh_weight)
 
@@ -83,7 +60,7 @@ screenreg(list(w_ni, w_ni_r, w_ni_u))
 dwplot(list(w_ni, w_ni_r, w_ni_u),
        dot_args = list(size = 2),
        vline = geom_vline(xintercept = 0, colour = "grey50", linetype = 2)) +
-  scale_color_discrete(labels = c("w_ni", "w_ni_r", "w_ni_u")) 
+  scale_color_discrete(labels = c(`Model 1` = "w_ni", `Model 2` = "w_ni_r", `Model 3` = "w_ni_u"))
 tidy(w_ni, conf.int = .95)
 tidy(w_ni_u, conf.int = .95)
 tidy(w_ni_r, conf.int = .95)
@@ -103,11 +80,6 @@ per_income <- bind_rows(
     mutate(urban_rural = "urban")) %>%
   dplyr::select(occupation = term, per_income_est = estimate, urban_rural)
 
-###### CHECK
-# tech aspros is negative => set to urban
-per_income$per_income_est[per_income$occupation == "tech_aspros" & per_income$urban_rural == "rural"] <- 
-  per_income$per_income_est[per_income$occupation == "tech_aspros" & per_income$urban_rural == "urban"]
-
 # Data.frame with residual for each hh and income net of residual, i.e. sum of per_income
 hh_income <- bind_rows(
   hh_db %>%
@@ -121,7 +93,7 @@ hh_income <- bind_rows(
     mutate(residual = w_ni_u$residuals,
            hh_income_ex_resid = hh_income - residual)
 )
-  
+
 # Check if income_ex_resid >0
 filter(hh_income, hh_income_ex_resid <0)
 
@@ -133,7 +105,7 @@ filter(hh_income, hh_income_ex_resid <0)
 # and use that selection as the seed!
 hh_income <- hh_income %>%
   mutate(hh_income_ex_resid = ifelse(hh_income_ex_resid < 0, 0, hh_income_ex_resid))
-  
+
 # Combine
 est_income <- list(
   per_income = per_income,
@@ -144,5 +116,5 @@ est_income <- list(
 # SAVE -----------------------------------------------------------------------------------
 # ========================================================================================
 
-saveRDS(est_income, file.path(proc_path, glue("simulation/estimated_income_{iso3c_sel}.rds")))
+saveRDS(est_income, file.path(param$model_path, glue("simulation/estimated_income_{param$iso3c}.rds")))
 

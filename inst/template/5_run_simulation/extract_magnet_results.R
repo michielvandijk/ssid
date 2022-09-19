@@ -1,45 +1,25 @@
 # ========================================================================================
-# Project:  simFNS
-# Subject:  Script extract MAGNET results
+# Project:  ssid
+# Subject:  Script to extract MAGNET results
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl
 # ========================================================================================
 
 # ========================================================================================
-# SETUP ----------------------------------------------------------------------------------
+# SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-# Load pacman for p_load
-if(!require(pacman)) install.packages("pacman")
-library(pacman)
+source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
-# Load key packages
-p_load(here, tidyverse, readxl, stringr, scales, glue)
-
-# Load additional packages
 # remotes::install_github("Thijs-de-Lange/magnetr")
-p_load(imputeTS)
 library(magnetr)
-
-# Set path
-source(here("working_paper/scripts/support/set_path.r"))
-
-# R options
-options(scipen = 999)
-options(digits = 4)
-
-# ========================================================================================
-# SET ISO3c ------------------------------------------------------------------------------
-# ========================================================================================
-
-iso3c_sel <- "ETH"
 
 
 # ========================================================================================
 # MAGNET PARAMETERS ----------------------------------------------------------------------
 # ========================================================================================
 
-iso3c_magnet <- "Eth"
+iso3c_magnet <- "bgd"
 magnet_path <- "W:/WECR/Magnet_data4/Thijs/Dhaka_uganda_5lab/4_MAGNET"
 dataBasePath <- file.path(magnet_path,'Basedata')
 dataUpdatesPath <- file.path(magnet_path,'Updates')
@@ -48,7 +28,7 @@ dataSolutionPath <- file.path(magnet_path,'Solutions')
 file_path_shocks <- file.path(magnet_path,'Shocks')
 shocks <- c("Shocks_ssp1_5lab_labshock", "Shocks_ssp2_5lab_labshock", "Shocks_ssp3_5lab_labshock")
 
-country <- c("ETH")
+country <- c("BGD")
 scenario <-c("BaseGDPExo_msx_SSP1_5lab_labshock", "BaseGDPExo_msx_SSP2_5lab_labshock", "BaseGDPExo_msx_SSP3_5lab_labshock")
 period <- c("2014-2018", "2018-2020", "2020-2025", "2025-2030", "2030-2035" ,"2035-2040", "2040-2045", "2045-2050")
 base_year <- "2014"
@@ -127,7 +107,7 @@ qlab_occ_type <- magnetr::magnet_indicator("qlab", scenario, period, base_year, 
   filter(region == iso3c_magnet)
 
 qlab_occ_type %>%
-  ggplot(aes(x = year, y = qlab_per_occ, group = scenario, color = scenario)) + 
+  ggplot(aes(x = year, y = qlab_per_occ, group = scenario, color = scenario)) +
   facet_wrap(region~ variable1, scales = "free") +
   geom_line() +
   labs(x = "Year", y = "Labour quantity", title = "Labour quantity") +
@@ -147,7 +127,7 @@ net_wage <- magnetr::magnet_indicator("net_wage", scenario, period, base_year, m
 # Patterns are weird!
 net_wage_occ_type <- net_wage %>%
   group_by(variable, region, scenario, year) %>%
-  summarise(wage = weighted.mean(value, qlab), 
+  summarise(wage = weighted.mean(value, qlab),
             .groups = "drop") %>%
   mutate(
     scenario = case_when(
@@ -160,7 +140,7 @@ net_wage_occ_type <- net_wage %>%
   ungroup()
 
 net_wage_occ_type %>%
-  ggplot(aes(x = year, y = index, group = scenario, color = scenario)) + 
+  ggplot(aes(x = year, y = index, group = scenario, color = scenario)) +
   facet_wrap(~ variable, scales = "free") +
   geom_line() +
   labs(x = "Year", y = "Net wage", title = "Net wage") +
@@ -213,13 +193,12 @@ wage_proj <- wage_proj %>%
   complete(occupation, scenario, adm0_code, year = c(2014:2050)) %>%
   mutate(value = na_interpolation(value)) %>%
   group_by(occupation, scenario) %>%
-  mutate(occ_wage_proj = value/value[year == 2018]) %>%
+  mutate(occ_wage_proj = value/value[year == param$base_year]) %>%
   dplyr::select(-value) %>%
   ungroup()
 
 
 # PRICES ---------------------------------------------------------------------------------
-# CHECK, why prices increase in all scenarios
 price_cons_good_market_price <- magnetr::magnet_indicator("price_cons_good_market_price", scenario, period, base_year, magnet_path) %>%
   filter(region == iso3c_magnet)  %>%
   mutate(
@@ -254,5 +233,5 @@ price_index %>%
 # SAVE -----------------------------------------------------------------------------------
 # ========================================================================================
 
-saveRDS(wage_proj, file.path(proc_path, glue("simulation/wage_proj_{iso3c_sel}.rds")))
-
+saveRDS(wage_proj, file.path(param$model_path, glue("simulation/wage_proj_{param$iso3c}.rds")))
+saveRDS(price_cons_good_market_price, file.path(param$model_path, glue("simulation/price_proj_{param$iso3c}.rds")))

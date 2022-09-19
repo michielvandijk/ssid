@@ -31,15 +31,15 @@ options(digits = 4)
 # SET ISO3c ------------------------------------------------------------------------------
 # ========================================================================================
 
-iso3c_sel <- "ETH"
+param$iso3c <- "ETH"
 
 
 # ========================================================================================
 # LOAD DATA ------------------------------------------------------------------------------
 # ========================================================================================
 
-adm1 <- readRDS(file.path(proc_path, glue("adm/adm1_{iso3c_sel}.rds")))
-adm2 <- readRDS(file.path(proc_path, glue("adm/adm2_{iso3c_sel}.rds")))
+adm1 <- readRDS(file.path(param$model_path, glue("adm/adm1_{param$iso3c}.rds")))
+adm2 <- readRDS(file.path(param$model_path, glue("adm/adm2_{param$iso3c}.rds")))
 
 
 # ========================================================================================
@@ -74,7 +74,7 @@ adm1_plot <- ggplot() +
   #theme_void(base_size = 14) +
   theme(panel.grid.major = element_line(colour = 'transparent')) +
   labs(fill = "", x = "", y = "", 
-       title = paste(countrycode(iso3c_sel, "iso3c", "country.name"), "ADM1", sep = " ")) +
+       title = paste(countrycode(param$iso3c, "iso3c", "country.name"), "ADM1", sep = " ")) +
   guides(fill = FALSE)
 
 
@@ -111,7 +111,7 @@ adm2_plot <- ggplot() +
   #theme_void(base_size = 14) +
   theme(panel.grid.major = element_line(colour = 'transparent')) +
   labs(fill = "", x = "", y = "",
-       title = paste(countrycode(iso3c_sel, "iso3c", "country.name"), "ADM2", sep = " ")) +
+       title = paste(countrycode(param$iso3c, "iso3c", "country.name"), "ADM2", sep = " ")) +
   guides(fill = FALSE)
 
 
@@ -119,10 +119,10 @@ adm2_plot <- ggplot() +
 # SAVE------------------------------------------------------------------------------------
 # ========================================================================================
 
-temp_path <- file.path(proc_path, "/adm")
+temp_path <- file.path(param$model_path, "/adm")
 dir.create(temp_path, recursive = T, showWarnings = F)
 
-pdf(file = file.path(temp_path, glue("adm_maps_{iso3c_sel}.pdf")), width = 8.27, height = 11.69)
+pdf(file = file.path(temp_path, glue("adm_maps_{param$iso3c}.pdf")), width = 8.27, height = 11.69)
 print(adm1_plot)
 print(adm2_plot)
 dev.off()

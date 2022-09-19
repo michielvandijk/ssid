@@ -16,11 +16,11 @@ ipf_seed(
   max_ratio = 5,
   min_ratio = 0.2,
   relative_gap = 0.01,
-  absolute_gap = 10
+  absolute_diff = 10
 )
 }
 \arguments{
-\item{absolute_gap}{}
+\item{absolute_diff}{}
 }
 \value{
 

@@ -14,8 +14,9 @@ if(!require(pacman)) install.packages("pacman")
 library(pacman)
 
 # Load required packages
-p_load(ssid, countrycode, here, ggspatial, glue, haven, imputeTS, ipumsr, janitor, furrr, progressr,
-       terra, tidyverse, readxl, scales, sf, tictoc)
+p_load(ssid, broom, countrycode, dotwhisker, here, ggspatial, glue, haven, imputeTS, ipumsr, janitor, furrr, progressr,
+       terra, tidyverse, readxl, scales, sf, texreg, tictoc)
+
 
 # R options
 options(scipen = 999) # Suppress scientific notation
@@ -49,5 +50,3 @@ param <- ssid_par(
   end_year = 2050)
 
 print(param)
-
-
