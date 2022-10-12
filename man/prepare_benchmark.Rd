@@ -9,9 +9,6 @@ prepare_benchmark(hh, u_r, a_s, oc)
 \arguments{
 \item{oc}{occupation data}
 }
-\value{
-
-}
 \description{
 Title
 }

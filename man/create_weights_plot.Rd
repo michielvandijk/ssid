@@ -12,9 +12,6 @@ create_weights_plot(region, sim_file)
 
 \item{sim_file}{Simulation file}
 }
-\value{
-
-}
 \description{
 Title
 Create figure with weight distribution

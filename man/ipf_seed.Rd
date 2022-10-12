@@ -22,9 +22,6 @@ ipf_seed(
 \arguments{
 \item{absolute_diff}{}
 }
-\value{
-
-}
 \description{
 ipf_seed
 }

@@ -11,9 +11,6 @@ aggregate2adm(r, adm)
 
 \item{adm_file}{Object of class sf with location of subnational administrative units}
 }
-\value{
-
-}
 \description{
 Function to aggregate raster files to adm level.
 }

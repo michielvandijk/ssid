@@ -1,6 +1,6 @@
 # ========================================================================================
 # Project:  ssid
-# Subject:  Script to create adm maps for analysis
+# Subject:  Script to set model parameters
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl
 # ========================================================================================
@@ -45,6 +45,7 @@ param <- ssid_par(
   iso3c = "BGD",
   base_year = 2016,
   start_year = 2016,
-  end_year = 2050)
+  end_year = 2050,
+  adm_level = 2)
 
 print(param)

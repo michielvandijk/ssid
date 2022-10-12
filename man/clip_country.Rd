@@ -11,9 +11,6 @@ clip_country(r, adm)
 
 \item{adm}{object of class sf with the location of subnational units}
 }
-\value{
-
-}
 \description{
 Function to clip national maps from global WorldPop sex and age disaggregated population maps
 }

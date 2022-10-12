@@ -21,9 +21,10 @@ Roxygen: list(markdown = TRUE)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-URL: https://github.com/michielvandijk/ssid
+URL: https://github.com/michielvandijk/ssid,
+    https://michielvandijk.github.io/ssid/
 BugReports: https://github.com/michielvandijk/ssid/issues
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Imports: 
     dplyr,
     exactextractr,
@@ -34,3 +35,7 @@ Imports:
     parallelly,
     progressr,
     sf
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

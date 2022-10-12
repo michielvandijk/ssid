@@ -9,7 +9,7 @@
 # SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
+source(here::here("working_paper/scripts/1_model_setup/set_model_parameters.r"))
 
 
 # ========================================================================================
@@ -432,7 +432,7 @@ subnat_urban_rural_proj <- bind_rows(
   subnat_urban_rural_proj %>%
     filter(!paste(adm2_code, scenario, urban_rural, sep = "_") %in% index_nan_id)
   ) %>%
-  group_by(scenario, adm1_name, adm2_name, adm2_code, urban_rural) %>%
+  group_by(scenario, adm1_name, adm1_code, adm2_name, adm2_code, urban_rural) %>%
   mutate(index = value/value[year == param$base_year]) %>%
   ungroup() %>%
   left_join(subnat_urban_rural_by) %>%

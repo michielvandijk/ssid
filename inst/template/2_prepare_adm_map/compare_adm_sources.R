@@ -9,7 +9,7 @@
 # SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
+source(here::here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
 
 # ========================================================================================

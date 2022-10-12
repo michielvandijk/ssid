@@ -9,7 +9,7 @@
 # SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
+source(here::here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
 # ========================================================================================
 # LOAD DATA ------------------------------------------------------------------------------
@@ -37,10 +37,15 @@ adm3 <- adm3_raw %>%
             adm2_name = toupper(ADM2_EN), adm2_code = ADM2_PCODE, adm3_name = toupper(ADM3_EN),
             adm3_code = ADM3_PCODE)
 
-# We do not use adm3
+# Prepare adm list, which includes adm level at which the model is run and potential higher level adm
+# that might me used for subsampling in the spatial microsimulation.
 adm_list <- adm2 %>%
   st_drop_geometry() %>%
   unique()
+
+# We use the adm2 map for data processing
+adm <- adm2 %>%
+  dplyr::select(adm_code = adm2_code, adm_name = adm2_name)
 
 
 # ========================================================================================
@@ -53,17 +58,11 @@ adm_list <- adm2 %>%
 
 dir.create(file.path(param$model_path, "adm"), showWarnings = FALSE, recursive = TRUE)
 write_csv(adm_list, file.path(param$model_path, glue("adm/adm_list_{param$iso3c}.csv")))
-saveRDS(adm_list, file.path(param$model_path, glue("adm/adm_list_{param$iso3c}.rds")))
-saveRDS(adm2, file.path(param$model_path, glue("adm/adm_{param$iso3c}.rds")))
-
-# saveRDS(adm1, file.path(param$model_path, glue("adm/adm1_{param$iso3c}.rds")))
-# st_write(adm1, file.path(param$model_path, glue("adm/adm1_{param$iso3c}.shp")), delete_dsn = TRUE)
-# saveRDS(adm2, file.path(param$model_path, glue("adm/adm2_{param$iso3c}.rds")))
-# saveRDS(adm3, file.path(param$model_path, glue("adm/adm3_{param$iso3c}.rds")))
+saveRDS(adm, file.path(param$model_path, glue("adm/adm_{param$iso3c}.rds")))
 
 
 # ========================================================================================
 # CLEAN UP -------------------------------------------------------------------------------
 # ========================================================================================
 
-rm(adm_list, adm1, adm1_raw, adm2, adm2_raw, adm3, adm3_raw)
+rm(adm_list, adm, adm1, adm1_raw, adm2, adm2_raw, adm3, adm3_raw)

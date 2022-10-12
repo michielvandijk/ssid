@@ -12,6 +12,7 @@ The package contains functions to run a dynamic spatial microsimulation model th
 Useful links:
 \itemize{
   \item \url{https://github.com/michielvandijk/ssid}
+  \item \url{https://michielvandijk.github.io/ssid/}
   \item Report bugs at \url{https://github.com/michielvandijk/ssid/issues}
 }
 

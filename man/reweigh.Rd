@@ -22,9 +22,6 @@ reweigh(
 \arguments{
 \item{absolute_diff}{}
 }
-\value{
-
-}
 \description{
 Title
 }
