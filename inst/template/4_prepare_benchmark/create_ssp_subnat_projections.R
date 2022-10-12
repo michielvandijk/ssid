@@ -551,7 +551,7 @@ subnat_age_sex_proj <- subnat_age_sex_proj %>%
 # Calculate shares and growth index rate for shares
 nat_occ <- nat_occ_raw %>%
   mutate(variable = ifelse(variable == "agri_lowsk", "ag_othlowsk", variable)) %>%
-  filter(year >= param$base_year) %>%
+  filter(year >= unique(subnat_occ_by_raw$year)) %>%
   group_by(year, scenario) %>%
   mutate(share = value / sum(value, na.rm = TRUE)) %>%
   ungroup() %>%
@@ -667,26 +667,26 @@ subnat_hh_proj <- subnat_age_sex_proj %>%
 
 # The sample fraction can be found on the IPUMS website:
 # https://international.ipums.org/international-action/samples
-sample_fraction <- 1/0.05
+sample_fraction <- 1/0.1
 
 # Compare census and estimated hh_n
 # Note that we compare census year with base year, which can be >10 years apart
 n_hh_check <- subnat_hh_proj %>%
-  mutate(n_hh = value * h, na.rm = T) %>%
-  group_by(scenario, year, adm1_name, age, sex) %>%
+  group_by(scenario, year, adm2_name, age, sex) %>%
   summarize(
-    n_head = sample_fraction * unique(n_head),
-    n_hh = sum(value * 1/h, na.rm = T),
+    n_hh_census = sample_fraction * unique(n_head),
+    n_hh = sum(value * h, na.rm = T),
     .groups = "drop"
   ) %>%
   filter(year == param$base_year, scenario == "ssp2") %>%
-  mutate(check = n_hh / n_head)
+  mutate(check = n_hh / n_hh_census)
+hist(n_hh_check$check)
 
 # Calculate n_hh
 # We filter out agr groups with 0 (<15) headship rate
 subnat_hh_proj <- subnat_hh_proj %>%
   filter(h != 0) %>%
-  mutate(n_hh = value * 1/h) %>%
+  mutate(n_hh = value * h) %>%
   group_by(adm0_code, adm1_name, adm1_code, adm2_name, adm2_code, year, scenario) %>%
   summarize(value = sum(n_hh, na.rm = T), .groups = "drop")
 

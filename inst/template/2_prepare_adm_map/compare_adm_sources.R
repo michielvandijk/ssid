@@ -26,6 +26,22 @@ source(here::here("working_paper/scripts/model_setup/set_model_parameters.r"))
 
 ############## CHECK MAP SEND by SYED IF IT MATCHES WITH HIES2016
 
+
+### ADD CODE TO COMPARE WITH IPUMS!!
+# adm 1
+check_adm1 <- full_join(
+  adm %>%
+    st_drop_geometry() %>%
+    dplyr::select(adm1_name) %>%
+    mutate(source1 = "map") %>%
+    unique(),
+  ipums %>%
+    dplyr::select(adm1_name) %>%
+    mutate(source2 = "ipums") %>%
+    unique()
+)
+
+
 # ========================================================================================
 # ADM LIST FOR SURVEY --------------------------------------------------------------------
 # ========================================================================================

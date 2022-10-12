@@ -29,6 +29,10 @@ But it is not clear how they are counted in other data pieces.
 
 Check calculation of hh heads and why it differs so much in some regions (see BGD)
 
+# National occupation projections.
+- Need to update to more recent base year => Need to make adjustment in code where
+subnational occ projections are calculated to ensure base year index is calculated correctly. apply a fix in Uganda now.
+
 # Consistency
 
 Need to rename occ to occupation in occ projections as this is the header we also use in per_db!
@@ -47,5 +51,7 @@ Need to rename occ to occupation in occ projections as this is the header we als
 - Create bar chart of poverty headcount/change per adm2
 - Select examplatory regions (one with large transition from rural to urban? or one with bigest change in pov)
 
-
+# Selection of adm map
+- Always add adm2 and adm1 even if it is dummy. At the moment the preparation of subnational benchmark assumes there is an adm2 level, should use "adm" as standard for the adm level at which the model is run, with the option of adding an "adm1" which can be used to subsample from in case of a large survey
+- What determines the adm map? If a hh survey is represenatative at an adm level that is comparable to the target adm than the survey is guiding. If not any map can do, maybe best is IPUMS as this is a key data source?
 

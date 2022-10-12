@@ -134,6 +134,10 @@ subnat_emp <- bind_rows(
                             "off_mgr_pros & tech_aspros", "service_shop"))
 )
 
+# ADD ADM2 CODE AND NAME IF NECESSARY ----------------------------------------------------
+# Even in base year occupation is only available at adm1 level, add adm2 name and code
+# in order to link data in the next step when benchmark projections are calculated
+
 # ========================================================================================
 # SAVE -----------------------------------------------------------------------------------
 # ========================================================================================
