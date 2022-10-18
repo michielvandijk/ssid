@@ -32,6 +32,7 @@ Check calculation of hh heads and why it differs so much in some regions (see BG
 # National occupation projections.
 - Need to update to more recent base year => Need to make adjustment in code where
 subnational occ projections are calculated to ensure base year index is calculated correctly. apply a fix in Uganda now.
+- At the moment not_in_lf is sum of unemployed and not_in_lf. Question remains what we do with labor force participation rare and employment assumptions over time.
 
 # Consistency
 
@@ -55,3 +56,18 @@ Need to rename occ to occupation in occ projections as this is the header we als
 - Always add adm2 and adm1 even if it is dummy. At the moment the preparation of subnational benchmark assumes there is an adm2 level, should use "adm" as standard for the adm level at which the model is run, with the option of adding an "adm1" which can be used to subsample from in case of a large survey
 - What determines the adm map? If a hh survey is represenatative at an adm level that is comparable to the target adm than the survey is guiding. If not any map can do, maybe best is IPUMS as this is a key data source?
 
+
+# Treatment of outliers
+- Check what others do (e.g. cut of rates 500/5000 kcal).
+- World Bank approach
+- ?
+
+
+# Treatment of missing data
+- Zeros in consumption data in 7 day recall. Ecker assumes this is not realistic and imputs
+
+
+
+# Check of weights. 
+- Literature of trimming weights in microsim. Need to check if resulting weights are realistic.
+- Also need to check if one EA does not dominate results. Not desirable to have high weights from only a few EA obeservations.

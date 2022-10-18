@@ -1,5 +1,5 @@
 # ========================================================================================
-# Project:  sidd
+# Project:  ssid
 # Subject:  Script to analyze spatial simulations
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl

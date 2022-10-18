@@ -62,7 +62,7 @@ ipf_seed <- function(reg_tz, hh_s, per_s, bm, p, reg_sample = FALSE, verbose = F
   per_t_r[["occupation"]] <- bm$per_bm$per_occ
   per_t_r <- lapply(per_t_r, prep_target, reg, tz)
 
-  sim <- ipfr::ipu(hh_s_r, hh_t_r, per_s_r, per_t_r, max_iterations = max_iter, verbose = verbose,
+  sim <- ipu(hh_s_r, hh_t_r, per_s_r, per_t_r, max_iterations = max_iter, verbose = verbose,
              max_ratio = max_ratio, min_ratio = min_ratio, relative_gap = relative_gap, absolute_diff = absolute_diff)
   return(sim)
 }

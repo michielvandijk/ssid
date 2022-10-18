@@ -1,5 +1,5 @@
 # ========================================================================================
-# Project:  sidd
+# Project:  ssid
 # Subject:  Script to compare adm map and adm info in survey
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl

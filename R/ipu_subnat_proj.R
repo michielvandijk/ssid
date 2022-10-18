@@ -16,26 +16,24 @@
 #' @export
 #'
 #' @examples
-ipu_subnat_proj <- function(y, scen, adm, verbose = TRUE) {
+ipu_subnat_proj <- function(y, scen, verbose = TRUE) {
   p() # To display progress bar in combination with furrr and progressr
   cat(y, scen, "\n")
   m <- subnat_age_sex_proj %>%
-    dplyr::mutate(adm_code = paste0("x", adm_code)) %>%
+    dplyr::mutate(adm2_code = paste0("x", adm2_code)) %>%
     dplyr::filter(year == y, scenario == scen) %>%
     dplyr::mutate(id = paste(age, sex, sep = "x")) %>%
-    dplyr::select(adm_code, id, value) %>%
-    dplyr::arrange(adm_code, id) %>%
+    dplyr::select(adm2_code, id, value) %>%
+    dplyr::arrange(adm2_code, id) %>%
     tidyr::pivot_wider(names_from = id, values_from = value, values_fill = 0) %>%
-    tibble::column_to_rownames("adm_code") %>%
-    dplyr::rename(paste("adm", param$adm_level) = adm_code)
+    tibble::column_to_rownames("adm2_code")
 
   m <- as.matrix(m)
 
   row_t <- subnat_urban_rural_proj %>%
-    dplyr::rename(adm_code = paste("adm", param$adm_level)) %>%
-    mutate(adm_code = paste0("x", adm_code)) %>%
+    mutate(adm2_code = paste0("x", adm2_code)) %>%
     filter(year == y, scenario == scen) %>%
-    group_by(year, scenario, adm1_name, adm1_code, adm2_name, adm2_code) %>% # Can we do this only adm_code?
+    group_by(year, scenario, adm1_name, adm1_code, adm2_name, adm2_code) %>%
     summarize(value = sum(value, na.rm = TRUE), .groups = "drop") %>%
     mutate(source = "urban_rural") %>%
     arrange(adm2_code) %>%

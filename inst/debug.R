@@ -27,26 +27,27 @@ options(digits = 4)
 # SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-# Set the folders where the scripts, model and database will be stored.
-# Note that R uses forward slashes even in Windows!!
 
-# Creates a model folder structure in c:/temp/ with the name 'ssid_eth'.
-# the user can replace eth with the country code of the case-study country or
-# choose a new name.
-# model_path <- "c:/temp/ssid_eth"
-model_path <- "c:/Users/dijk158/OneDrive - Wageningen University & Research/Projects/2021_simfns_bgd/data/processed"
 
-# Set location of ssid_db
-db_path <-   "c:/Users/dijk158/OneDrive - Wageningen University & Research/data/microsim_db"
+# Michiel WECR
+if(Sys.info()["user"] == "dijk158") {
+  model_path <- "C:/Users/dijk158/OneDrive - Wageningen University & Research/Projects/2022_ssid_uga/ssid"
+  db_path <-   "c:/Users/dijk158/OneDrive - Wageningen University & Research/data/microsim_db"
+}
+
+# Valerie WECR
+if(Sys.info()["user"] == "janss208") {
+
+}
 
 # Set ssid parameters
 param <- ssid_par(
   model_path = model_path,
   db_path = db_path,
-  iso3c = "BGD",
-  adm_level = 2,
-  base_year = 2016,
-  start_year = 2016,
-  end_year = 2050)
+  iso3c = "UGA",
+  base_year = 2018,
+  start_year = 2018,
+  end_year = 2050,
+  adm_level = 2)
 
 print(param)

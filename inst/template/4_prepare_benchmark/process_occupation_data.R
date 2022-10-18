@@ -1,5 +1,5 @@
 # ========================================================================================
-# Project:  sidd
+# Project:  ssid
 # Subject:  process occupation data
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl

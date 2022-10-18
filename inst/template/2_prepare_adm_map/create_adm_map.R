@@ -1,5 +1,5 @@
 # ========================================================================================
-# Project:  sidd
+# Project:  ssid
 # Subject:  Script to create adm map
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl

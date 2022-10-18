@@ -1,5 +1,5 @@
 # ========================================================================================
-# Project:  sidd
+# Project:  ssid
 # Subject:  Reweighing of seed
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl
