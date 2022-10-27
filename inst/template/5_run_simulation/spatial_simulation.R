@@ -10,7 +10,7 @@
 # SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
+source(here::here("working_paper/scripts/1_model_setup/set_model_parameters.r"))
 
 
 # ========================================================================================
@@ -18,11 +18,11 @@ source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 # ========================================================================================
 
 # Seed
-hh_db <- readRDS(file.path(param$model_path, glue("simulation/hh_db_{param$iso3c}.rds")))
-per_db <- readRDS(file.path(param$model_path, glue("simulation/per_db_{param$iso3c}.rds")))
+hh_db <- readRDS(file.path(param$model_path, glue("seed/hh_db_{param$iso3c}.rds")))
+per_db <- readRDS(file.path(param$model_path, glue("seed/per_db_{param$iso3c}.rds")))
 
 # Adm_list
-adm_list <- readRDS(file.path(param$model_path, glue("adm/adm_list_{param$iso3c}.rds")))
+adm_list <- read_csv(file.path(param$model_path, glue("adm/adm_list_{param$iso3c}.csv")))
 
 # Subnat urban-rural projections
 subnat_urban_rural_proj <- readRDS(file.path(param$model_path,

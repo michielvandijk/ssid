@@ -338,9 +338,10 @@ nrow(hh_db %>%
 # SAVE -----------------------------------------------------------------------------------
 # ========================================================================================
 
-dir.create(file.path(param$model_path, "simulation"), showWarnings = FALSE, recursive = TRUE)
-saveRDS(hh_db, file.path(param$model_path, glue("simulation/hh_db_{param$iso3c}.rds")))
-saveRDS(per_db, file.path(param$model_path, glue("simulation/per_db_{param$iso3c}.rds")))
+temp_path <- file.path(param$model_path, "seed")
+dir.create(temp_path, showWarnings = FALSE, recursive = TRUE)
+saveRDS(hh_db, file.path(temp_path, glue("hh_db_{param$iso3c}.rds")))
+saveRDS(per_db, file.path(temp_path, glue("per_db_{param$iso3c}.rds")))
 
 
 # ========================================================================================
@@ -351,6 +352,7 @@ rm(
   adm, hh1, hh2, lab1, lab2, hies2isco,
   adm_list, adm_list_map, hh_list, hh_miss, hh_m15, hh_comp, hh_con,
   duplicates, duplicates_clean, item_list,
-  per_list, per_emp, per_occ, per_occ_emp
+  per_list, per_emp, per_occ, per_occ_emp,
+  temp_path
 )
 

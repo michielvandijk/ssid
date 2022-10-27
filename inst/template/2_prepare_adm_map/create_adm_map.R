@@ -9,7 +9,7 @@
 # SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-source(here::here("working_paper/scripts/model_setup/set_model_parameters.r"))
+source(here::here("working_paper/scripts/1_model_setup/set_model_parameters.r"))
 
 # ========================================================================================
 # LOAD DATA ------------------------------------------------------------------------------
@@ -44,8 +44,7 @@ adm_list <- adm2 %>%
   unique()
 
 # We use the adm2 map for data processing
-adm <- adm2 %>%
-  dplyr::select(adm_code = adm2_code, adm_name = adm2_name)
+adm <- adm2
 
 
 # ========================================================================================
@@ -54,7 +53,7 @@ adm <- adm2 %>%
 
 # NOTE -----------------------------------------------------------------------------------
 
-# Save map with all relevent adm levels as adm_iso3c.
+# Save map with all relevant adm levels as adm_iso3c.
 
 dir.create(file.path(param$model_path, "adm"), showWarnings = FALSE, recursive = TRUE)
 write_csv(adm_list, file.path(param$model_path, glue("adm/adm_list_{param$iso3c}.csv")))
