@@ -1,5 +1,5 @@
 # ========================================================================================
-# Project:  simFNS
+# Project:  sidd
 # Subject:  Exploratory data analysis
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl
@@ -18,8 +18,8 @@ source(here("working_paper/scripts/model_setup/set_model_parameters.r"))
 # ========================================================================================
 
 # Seed
-hh_db <- readRDS(file.path(param$model_path, glue("simulation/hh_db_{param$iso3c}.rds")))
-per_db <- readRDS(file.path(param$model_path, glue("simulation/per_db_{param$iso3c}.rds")))
+hh_db <- readRDS(file.path(param$model_path, glue("seed/hh_db_{param$iso3c}.rds")))
+per_db <- readRDS(file.path(param$model_path, glue("seed/per_db_{param$iso3c}.rds")))
 
 # Adm_list
 adm_list <- readRDS(file.path(param$model_path, glue("adm/adm_list_{param$iso3c}.rds")))
@@ -80,7 +80,7 @@ hh_occ <- per_db %>%
 # We only look at high-skill occupations as these will be problematic
 subnat_occ_proj %>%
   filter(occ %in% c("clerks", "off_mgr_pros", "service_shop", "tech_aspros")) %>%
-  filter(year %in% c(2018, 2050)) %>%
+  filter(year %in% c(param$base_year, 2050)) %>%
   ggplot() +
     geom_col(aes(x = adm1_name, y = value, fill = occ)) +
     facet_wrap(~factor(year)) +

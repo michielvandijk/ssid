@@ -56,7 +56,7 @@ adm <- adm2
 # Save map with all relevant adm levels as adm_iso3c.
 
 dir.create(file.path(param$model_path, "adm"), showWarnings = FALSE, recursive = TRUE)
-write_csv(adm_list, file.path(param$model_path, glue("adm/adm_list_{param$iso3c}.csv")))
+saveRDS(adm_list, file.path(param$model_path, glue("adm/adm_list_{param$iso3c}.rds")))
 saveRDS(adm, file.path(param$model_path, glue("adm/adm_{param$iso3c}.rds")))
 
 
