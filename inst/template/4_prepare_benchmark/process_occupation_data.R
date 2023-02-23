@@ -43,7 +43,7 @@ if(param$base_year == max(subnat_db$year == param$base_year)) {
 }
 
 # adm microsim
-unique(sort(adm1$adm1_name))
+unique(sort(adm$adm1_name))
 
 # adm dhs
 sort(unique(subnat_emp$region))

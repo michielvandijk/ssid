@@ -1,5 +1,5 @@
 # ========================================================================================
-# Project:  siss
+# Project:  ssid
 # Subject:  Script to simulate income change
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl

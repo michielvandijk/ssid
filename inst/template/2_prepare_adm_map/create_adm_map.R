@@ -57,6 +57,8 @@ adm <- adm2
 
 dir.create(file.path(param$model_path, "adm"), showWarnings = FALSE, recursive = TRUE)
 saveRDS(adm_list, file.path(param$model_path, glue("adm/adm_list_{param$iso3c}.rds")))
+saveRDS(adm1, file.path(param$model_path, glue("adm/adm1_{param$iso3c}.rds")))
+saveRDS(adm2, file.path(param$model_path, glue("adm/adm2_{param$iso3c}.rds")))
 saveRDS(adm, file.path(param$model_path, glue("adm/adm_{param$iso3c}.rds")))
 
 

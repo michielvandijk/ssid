@@ -1,5 +1,5 @@
 # ========================================================================================
-# Project:  simFNS
+# Project:  ssid
 # Subject:  Calculate hh consumption
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl
@@ -10,7 +10,7 @@
 # SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-source(here("working_paper/scripts/1_model_setup/set_model_parameters.r"))
+source(here::here("working_paper/scripts/1_model_setup/set_model_parameters.r"))
 
 
 # ========================================================================================
