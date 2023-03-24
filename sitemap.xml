@@ -37,7 +37,10 @@
     <loc>https://michielvandijk.github.io/ssid/reference/create_model_template.html</loc>
   </url>
   <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/create_weights_plot.html</loc>
+    <loc>https://michielvandijk.github.io/ssid/reference/extract_output.html</loc>
+  </url>
+  <url>
+    <loc>https://michielvandijk.github.io/ssid/reference/extract_weight_plots.html</loc>
   </url>
   <url>
     <loc>https://michielvandijk.github.io/ssid/reference/fix_outlier_iqr.html</loc>

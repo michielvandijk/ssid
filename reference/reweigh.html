@@ -69,14 +69,23 @@
 <span>  max_ratio <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  min_ratio <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  relative_gap <span class="op">=</span> <span class="fl">0.01</span>,</span>
-<span>  absolute_diff <span class="op">=</span> <span class="fl">10</span></span>
+<span>  absolute_diff <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  output <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>absolute_diff</dt>
-<dd></dd>
+    <dl><dt>parallel</dt>
+<dd><p>If TRUE (the default), the reweighing algorithm is run in
+parallel for all regions. Otherwise, the sequential option is used (which
+in most cases takes much longer.</p></dd>
+
+
+<dt>output</dt>
+<dd><p>A folder where to save the output for each ssp-year combination
+as specified in <code>ssp_y</code>. The default (NULL) is not to save any output.</p></dd>
 
 </dl></div>
 
