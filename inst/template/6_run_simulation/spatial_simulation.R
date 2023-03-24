@@ -106,7 +106,6 @@ bm_by <- prepare_benchmark(subnat_hh_proj, subnat_urban_rural_proj, subnat_age_s
 # We adjusted the relative gap from 0.01 to 0.05 and set iterations to 500,
 # We also slightly modified the min and max ratio
 # which leads to convergence for most regions. We might adjust in the final run
-# 7023 sec
 
 ssp_y <- expand.grid(ssp = c("ssp1", "ssp2", "ssp3"), y = param$base_year, stringsAsFactors = FALSE) %>%
   mutate(ssp_y = paste(ssp, y, sep = "_"))
@@ -121,15 +120,8 @@ toc()
 
 # CHECK CONVERGENCE ----------------------------------------------------------------------
 
-sim_by_stats <- map_df(seq_along(adm_list$reg_tz), function(x) {sim_by$ssp2_2016[[adm_list$reg_tz[x]]]$stats$stats_sum})
-table(sim_by_stats$converged)
-
-sim_by_stats <- map_df(ssp_y$ssp_y, function(y)
-  map_df(seq_along(adm_list$reg_tz), function(x){
-    sim_by[[y]][[adm_list$reg_tz[x]]]$stats$stats_sum},
-    .id = "reg_tz"
-  ), .id = "ssp_y"
-)
+sim_by_stats <- extract_output(sim_by, "stats")
+table(sim_by_stats$stats_sum$converged)
 
 
 # ========================================================================================
@@ -178,36 +170,17 @@ toc()
 
 
 
-
+# ========================================================================================
 # CHECK CONVERGENCE ----------------------------------------------------------------------
-sim_no_by_stats <- map_df(seq_along(adm_list$reg_tz), function(x) {sim_no_by$ssp2_2050[[adm_list$reg_tz[x]]]$stats$stats_sum})
-table(sim_no_by_stats$converged)
-
-sim_no_by_stats <- map_df(ssp_y$ssp_y, function(y)
-  map_df(seq_along(adm_list$reg_tz), function(x){
-  sim_no_by[[y]][[adm_list$reg_tz[x]]]$stats$stats_sum},
-  .id = "reg_tz"
-  ), .id = "ssp_y"
-)
-
-
-# ========================================================================================
-# COMBINE SIMULATIONS --------------------------------------------------------------------
 # ========================================================================================
 
-# TO DO: Convert all sims to data.frames with columns that include scenario and year and bind.
-# In this way, all simulations can quickly be filtered, etc.
+sim_db <- c(sim_by, sim_no_by)
+sim_stats <- extract_output(sim_db, "stats")
+table(sim_stats$stats_sum$converged)
+table(sim_stats$stats_sum$worst_marginal_stats_category[!sim_stats$stats_sum$converged])
 
-
-# ========================================================================================
-# SAVE -----------------------------------------------------------------------------------
-# ========================================================================================
-
-temp_path <- file.path(param$model_path, glue("simulation/{Sys.Date()}"))
-dir.create(temp_path, recursive = T, showWarnings = F)
-saveRDS(sim_by, file.path(temp_path, glue("ssp1_3_by_{param$iso3c}.rds")))
-saveRDS(sim_no_by, file.path(temp_path, glue("ssp1_3_no_by_{param$iso3c}.rds")))
-
+prim <- extract_output(sim_db, "primary_comp")
+second <- extract_output(sim_db, "secondary_comp")
 
 # ========================================================================================
 # PLOT WEIGHTS ---------------------------------------------------------------------------
@@ -215,11 +188,6 @@ saveRDS(sim_no_by, file.path(temp_path, glue("ssp1_3_no_by_{param$iso3c}.rds")))
 
 # UPDATE: Create function that compares across years per region?
 # Create pdf to inspect weights of histogram
-pdf(file = file.path(temp_path, "ssp1_3_by_weights.pdf")) # , width = 8.27, height = 11.69
-walk(adm_list$reg_tz, create_weights_plot, sim_file = sim_by[[1]])
+pdf(file = file.path(temp_path, "ssp1_3_weights.pdf")) # , width = 8.27, height = 11.69
+extract_weight_plots(sim_db, adm_list$reg_tz, ssp_y$ssp_y)
 dev.off()
-
-pdf(file = file.path(temp_path, "ssp1_3_2050_weights.pdf")) # , width = 8.27, height = 11.69
-walk(adm_list$reg_tz, create_weights_plot, sim_file = sim_no_by[[1]])
-dev.off()
-

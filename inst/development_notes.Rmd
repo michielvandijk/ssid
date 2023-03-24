@@ -60,7 +60,7 @@ Need to rename occ to occupation in occ projections as this is the header we als
 # Treatment of outliers
 - Check what others do (e.g. cut of rates 500/5000 kcal).
 - World Bank approach
-- ?
+=> coded iqr and quantile methods and used first to process calorie data
 
 
 # Treatment of missing data

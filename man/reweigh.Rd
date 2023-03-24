@@ -16,11 +16,18 @@ reweigh(
   max_ratio = 5,
   min_ratio = 0.2,
   relative_gap = 0.01,
-  absolute_diff = 10
+  absolute_diff = 10,
+  parallel = TRUE,
+  output = NULL
 )
 }
 \arguments{
-\item{absolute_diff}{}
+\item{parallel}{If TRUE (the default), the reweighing algorithm is run in
+parallel for all regions. Otherwise, the sequential option is used (which
+in most cases takes much longer.}
+
+\item{output}{A folder where to save the output for each ssp-year combination
+as specified in \code{ssp_y}. The default (NULL) is not to save any output.}
 }
 \description{
 Title
