@@ -5,6 +5,7 @@
 #' @param hh_s
 #' @param per_s
 #' @param bm
+#' @param param
 #' @param reg_sample
 #' @param verbose
 #' @param max_iter
@@ -22,7 +23,7 @@
 #' @export
 #'
 #' @examples
-reweigh <- function(ssp_y, reg_tz, hh_s, per_s, bm, reg_sample = FALSE,
+reweigh <- function(ssp_y, reg_tz, hh_s, per_s, bm, param, reg_sample = FALSE,
                     verbose = FALSE, max_iter = 300, max_ratio = 5, min_ratio = 0.2,
                     relative_gap = 0.01, absolute_diff = 10, parallel = TRUE,
                     output = NULL){
@@ -31,7 +32,7 @@ reweigh <- function(ssp_y, reg_tz, hh_s, per_s, bm, reg_sample = FALSE,
   y <- str_split(ssp_y, pattern = "_")[[1]][2]
   bm <- select_benchmark(ssp, y, bm)
   if (parallel) {
-    plan(multisession)
+    plan(multisession, workers = availableCores())
   } else {
     plan(sequential)
   }
@@ -57,7 +58,12 @@ reweigh <- function(ssp_y, reg_tz, hh_s, per_s, bm, reg_sample = FALSE,
   plan(sequential)
   if (!is.null(output)) {
     dir.create(output, showWarnings = FALSE)
-    saveRDS(sim, file.path(output, glue::glue("{ssp_y}.rds")))
+    if(reg_sample) {
+      file_name <- glue::glue("{ssp_y}_adm1_sample_{param$iso3c}.rds")
+    } else {
+      file_name <- glue::glue("{ssp_y}_full_sample_{param$iso3c}.rds")
+      }
+    saveRDS(sim, file.path(output, file_name))
   }
   return(sim)
 }

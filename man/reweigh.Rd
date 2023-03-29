@@ -10,6 +10,7 @@ reweigh(
   hh_s,
   per_s,
   bm,
+  param,
   reg_sample = FALSE,
   verbose = FALSE,
   max_iter = 300,

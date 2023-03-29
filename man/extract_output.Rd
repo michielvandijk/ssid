@@ -4,16 +4,14 @@
 \alias{extract_output}
 \title{Extract weights and diagnostics from spatial simulation object}
 \usage{
-extract_output(sim, ssp_y, reg_tz, output)
+extract_output(df, var)
 }
 \arguments{
-\item{sim}{Object with spatial simulation results.}
+\item{df}{Object with spatial simulation results nested by ssp-year and
+region.}
 
-\item{ssp_y}{Vector with ssp-year combinations for which simulation results are stored in \code{sim}.}
-
-\item{reg_tz}{Vector with regions for which simulation results are stored in \code{sim}.}
-
-\item{output}{Type of output that needs to be extracted.}
+\item{var}{Type of output that needs to be extracted. Options are: stats,
+weight_tbl, primary_comp, secondary_comp}
 }
 \description{
 Extract weights and diagnostics from spatial simulation object
