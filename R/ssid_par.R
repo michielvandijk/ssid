@@ -41,7 +41,7 @@ ssid_par <-
              db_path = NULL,
              iso3c = NULL,
              adm_level = NULL,
-             base_year = NULL,
+             seed_year = NULL,
              start_year = NULL,
              end_year = NULL) {
 
@@ -51,8 +51,8 @@ ssid_par <-
             iso3n = ifelse(!is.null(iso3c), countrycode::countrycode(iso3c, "iso3c", "iso3n"), NA_character_),
             continent = ifelse(!is.null(iso3c), countrycode::countrycode(iso3c, "iso3c", "continent"), NA_character_),
             adm_level = adm_level,
-            base_year = base_year,
             start_year = start_year,
+            seed_year = seed_year,
             end_year = end_year,
             model_path = model_path,
             db_path = db_path,
@@ -89,25 +89,25 @@ validate_ssid_par <- function(param) {
            call. = FALSE)
     }
   }
-  if (is.null(param$base_year)) {
-    stop("base_year is not defined",
-         call. = FALSE)
-  } else {
-    if(!is.numeric(param$base_year)) {
-      stop("base_year is not an integer",
-           call. = FALSE)
-    } else {
-      if(param$base_year < 2000 | param$base_year > 2030) {
-        message("base_year seems to have an unrealistic value")
-      }
-    }
-  }
   if (is.null(param$start_year)) {
     stop("start_year is not defined",
          call. = FALSE)
   } else {
     if(!is.numeric(param$start_year)) {
       stop("start_year is not an integer",
+           call. = FALSE)
+    } else {
+      if(param$start_year < 2000 | param$start_year > 2030) {
+        message("start_year seems to have an unrealistic value")
+      }
+    }
+  }
+  if (is.null(param$seed_year)) {
+    stop("seed_year is not defined",
+         call. = FALSE)
+  } else {
+    if(!is.numeric(param$seed_year)) {
+      stop("seed_year is not an integer",
            call. = FALSE)
     }
   }

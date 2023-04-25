@@ -9,7 +9,7 @@ ssid_par(
   db_path = NULL,
   iso3c = NULL,
   adm_level = NULL,
-  base_year = NULL,
+  seed_year = NULL,
   start_year = NULL,
   end_year = NULL
 )
@@ -27,11 +27,11 @@ code, also referred to as iso3c. A list of country codes can be found in
 \item{adm_level}{numeric. Administrative unit level at which the model is run. This needs to correspond with
 the information in the shapefile of the administrative units, which is needed as input.}
 
-\item{base_year}{numeric. Base year of the model, normally the year of the household survey.}
-
 \item{start_year}{numeric. Start year of the simulation period.}
 
 \item{end_year}{numeric. End year of the simulation period.}
+
+\item{base_year}{numeric. Base year of the model, normally the year of the household survey.}
 }
 \value{
 ssid_par object
