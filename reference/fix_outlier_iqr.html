@@ -57,7 +57,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fix_outlier_iqr</span><span class="op">(</span><span class="va">x</span>, r <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fix_outlier_iqr</span><span class="op">(</span><span class="va">x</span>, r <span class="op">=</span> <span class="fl">1.5</span>, d <span class="op">=</span> <span class="st">"ul"</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -69,18 +69,22 @@
 <dt>r</dt>
 <dd><p>Range. Default is 1.5</p></dd>
 
+
+<dt>d</dt>
+<dd><p>Direction where outliers will be replaced. u for upper values, l for lower values, ul for both.</p></dd>
+
 </dl></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">fix_outlier_iqr</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">40</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.15073597  0.92051484 -1.71109504 -1.60956157  0.38158615 -0.75869486</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.76338000  0.07251103  0.80603167 -1.41990398  0.22383041 -0.72383402</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.01405433 -0.86519096  0.79379155  0.92323123 -0.05163761  0.26935507</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.63923307  0.55671555 -0.34872775 -0.97725205 -0.34193540 -0.95663262</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.39756347 -1.18486102  0.61763159  0.27728284  1.47196911 -0.41492413</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.25886749  0.30403306  0.86126148  0.24972304  1.52581398 -0.54102417</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -1.08090522 -1.31160624 -0.16529030 -0.55317922</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.97439305 -1.86146856  0.02508263  0.97468616 -1.65541708 -1.56667590</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.46586427  0.05004068  1.10215883  0.45789639  0.19321684 -1.34130848</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.68754053  0.67631061  1.33542024  1.90191634  0.74155421  0.40227122</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.16608160  0.12554066 -0.12196374  0.10495038 -0.39923293 -0.47826966</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.80800039  0.14170002 -0.86599962  1.61566378  0.17107157  1.41895891</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  1.51184055 -0.14376881 -0.82641316  1.08419059 -1.52139141  1.81273482</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.41531976 -1.03289023 -1.42958850  0.61837212</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
