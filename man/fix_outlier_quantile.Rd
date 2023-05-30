@@ -4,7 +4,7 @@
 \alias{fix_outlier_quantile}
 \title{Function to fix outliers using quantile approach}
 \usage{
-fix_outlier_quantile(x, q_lower = 0.025, q_upper = 0.975)
+fix_outlier_quantile(x, q_lower = 0.025, q_upper = 0.975, d = "ul")
 }
 \arguments{
 \item{x}{Vector with data containing outliers}
@@ -12,10 +12,12 @@ fix_outlier_quantile(x, q_lower = 0.025, q_upper = 0.975)
 \item{q_lower}{Lower quantile range. Default is 0.025.}
 
 \item{q_upper}{Upper quantile range. Default is 0.975.}
+
+\item{d}{Direction where outliers will be replaced. u for upper values, l for lower values, ul for both.}
 }
 \description{
 This function uses quantiles to determine outliers and replace them with the median value.
 }
 \examples{
-fix_outlier_quantile(rnorm(40, mean = 0, sd = 1))
+fix_outlier_quantile(rnorm(40, mean = 0, sd = 1), d = "ul")
 }

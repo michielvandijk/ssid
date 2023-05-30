@@ -165,7 +165,7 @@ bm_by <- prepare_benchmark(subnat_hh_proj, subnat_urban_rural_proj, subnat_age_s
 # ========================================================================================
 
 temp_path <- file.path(param$model_path, glue("simulation/{Sys.Date()}"))
-dir.create(temp_path)
+dir.create(temp_path, recursive = TRUE, showWarnings = FALSE)
 
 ssp_y <- expand.grid(ssp = c("ssp1", "ssp2", "ssp3"), y = param$base_year, stringsAsFactors = FALSE) %>%
   mutate(ssp_y = paste(ssp, y, sep = "_"))
@@ -176,7 +176,7 @@ adm_list <- adm_list %>%
 
 tic()
 library(ipfr)
-sim_by <- ssp_y$ssp_y[c(1)] %>%
+sim_by <- ssp_y$ssp_y %>%
   set_names() %>%
   map(reweigh, adm_list$reg_tz, hh_seed_by, per_seed_by, bm_by,
               verbose = TRUE, reg_sample = FALSE, max_iter = 500, max_ratio = 20, min_ratio = 0.01, relative_gap = 0.05,

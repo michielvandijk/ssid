@@ -4,12 +4,14 @@
 \alias{fix_outlier_iqr}
 \title{Function to fix outliers using interquartile range}
 \usage{
-fix_outlier_iqr(x, r = 1.5)
+fix_outlier_iqr(x, r = 1.5, d = "ul")
 }
 \arguments{
 \item{x}{Vector with data containing outliers}
 
 \item{r}{Range. Default is 1.5}
+
+\item{d}{Direction where outliers will be replaced. u for upper values, l for lower values, ul for both.}
 }
 \description{
 This function uses the interquartile range to determine outliers and replace them with the median value.

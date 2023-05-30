@@ -6,6 +6,7 @@ print.ssid_par <- function(x, ...) {
     cat("continent: ", x$continent, "\n")
     cat("adm_level: ", x$adm_level, "\n")
     cat("seed_year: ", x$seed_year, "\n")
+    cat("proj_year: ", x$proj_year, "\n")
     cat("start_year: ", x$start_year, "\n")
     cat("end_ year: ", x$end_year, "\n")
     cat("model_path: ", x$model_path, "\n")

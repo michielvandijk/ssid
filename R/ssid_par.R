@@ -24,7 +24,9 @@
 #'  [Wikipedia](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3).
 #'@param adm_level numeric. Administrative unit level at which the model is run. This needs to correspond with
 #'the information in the shapefile of the administrative units, which is needed as input.
-#'@param base_year numeric. Base year of the model, normally the year of the household survey.
+#'@param seed_year numeric. Year for which the seed (household survey) is available.
+#'@param proj_year numeric. First year of the scenario projections. Often coincides with the last year for which
+#'  national population statistics are available.
 #'@param start_year numeric. Start year of the simulation period.
 #'@param end_year numeric. End year of the simulation period.
 #'
@@ -33,7 +35,7 @@
 #'@examples
 #'\dontrun{
 #'ssid_par(model_path = "C:/temp/ssid_eth", db_path = "C:/temp/ssid_db",
-#'iso3c = "ETH", adm_level = 2, base_year = 2018, start_year = 2018, end_year = 2050)
+#'iso3c = "ETH", adm_level = 2, seed_year = 2018, proj_year = 2021, start_year = 2018, end_year = 2050)
 #'}
 #'@export
 ssid_par <-
@@ -42,6 +44,7 @@ ssid_par <-
              iso3c = NULL,
              adm_level = NULL,
              seed_year = NULL,
+             proj_year = NULL,
              start_year = NULL,
              end_year = NULL) {
 
@@ -51,8 +54,9 @@ ssid_par <-
             iso3n = ifelse(!is.null(iso3c), countrycode::countrycode(iso3c, "iso3c", "iso3n"), NA_character_),
             continent = ifelse(!is.null(iso3c), countrycode::countrycode(iso3c, "iso3c", "continent"), NA_character_),
             adm_level = adm_level,
-            start_year = start_year,
             seed_year = seed_year,
+            proj_year = proj_year,
+            start_year = start_year,
             end_year = end_year,
             model_path = model_path,
             db_path = db_path,
@@ -108,6 +112,15 @@ validate_ssid_par <- function(param) {
   } else {
     if(!is.numeric(param$seed_year)) {
       stop("seed_year is not an integer",
+           call. = FALSE)
+    }
+  }
+  if (is.null(param$proj_year)) {
+    stop("proj_year is not defined",
+         call. = FALSE)
+  } else {
+    if(!is.numeric(param$proj_year)) {
+      stop("proj_year is not an integer",
            call. = FALSE)
     }
   }

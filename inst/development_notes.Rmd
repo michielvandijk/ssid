@@ -29,6 +29,9 @@ But it is not clear how they are counted in other data pieces.
 
 Check calculation of hh heads and why it differs so much in some regions (see BGD)
 
+# Food conversion
+Headey, Ecker Comstock convert everything to 2500 kcal adult equivalent (ae) instead of mae or fae, which we do. ae is also used in EAT-Lancet and hence is the better reference => need to update! Also check undernourishment estimation of FAO. What is the basis?
+
 # National occupation projections.
 - Need to update to more recent base year => Need to make adjustment in code where
 subnational occ projections are calculated to ensure base year index is calculated correctly. apply a fix in Uganda now.
@@ -58,7 +61,7 @@ Need to rename occ to occupation in occ projections as this is the header we als
 
 
 # Treatment of outliers
-- Check what others do (e.g. cut of rates 500/5000 kcal).
+- Check what others do (e.g. cut of rates 600/65000 kcal at hh level - see Ecker and comstock papers)
 - World Bank approach
 => coded iqr and quantile methods and used first to process calorie data
 
@@ -66,8 +69,28 @@ Need to rename occ to occupation in occ projections as this is the header we als
 # Treatment of missing data
 - Zeros in consumption data in 7 day recall. Ecker assumes this is not realistic and imputs
 
-
+# Regression analysis
+- rethink how they are done. If intercept is large in comparison to occupation coefficients, do they largely determine growth in hh income as they grow proportionally with occupation income, or is this okay?
 
 # Check of weights. 
 - Literature of trimming weights in microsim. Need to check if resulting weights are realistic.
 - Also need to check if one EA does not dominate results. Not desirable to have high weights from only a few EA obeservations.
+
+
+# Checking
+Need to create a script that checks all data, including:
+- share of urban/rural in seed, in line with nat stat
+- share of occupations in seed, idem
+- share of age in seed, idem
+
+- share of urban/rural in benchmark, in line with nat stat
+- share of occupations in benchmark, idem
+- share of age in benchmark, idem
+
+- If seed is consistent with benchmark, e.g. if there are rural households when bencmark says there are rural households in a large city such as addis.
+
+
+# Validation
+- Compare projections to historical if panel data (e.g. Malawi) is available
+- Compare different type of projections/nowcasting: (1) using average GDP such as in Lakner/WB; (2) using MAGNET wage rates
+
