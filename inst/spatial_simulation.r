@@ -1,55 +1,16 @@
 # ========================================================================================
 # Project:  ssid
-# Subject:  Script to create adm maps for analysis
+# Subject:  Reweighing of seed
 # Author:   Michiel van Dijk
 # Contact:  michiel.vandijk@wur.nl
 # ========================================================================================
-
-# ========================================================================================
-# SETUP ----------------------------------------------------------------------------------
-# ========================================================================================
-
-# Load pacman for p_load
-if(!require(pacman)) install.packages("pacman")
-library(pacman)
-
-# Load required packages
-p_load(ssid, broom, countrycode, dotwhisker, here, ggspatial, glue, haven, imputeTS, ipumsr, janitor, furrr, progressr,
-       terra, tidyverse, readxl, scales, sf, texreg, tictoc)
-
-
-# R options
-options(scipen = 999) # Suppress scientific notation
-options(digits = 4)
 
 
 # ========================================================================================
 # SET MODEL PARAMETERS -------------------------------------------------------------------
 # ========================================================================================
 
-# Set the folders where the scripts, model and database will be stored.
-# Note that R uses forward slashes even in Windows!!
-
-# Creates a model folder structure in c:/temp/ with the name 'ssid_eth'.
-# the user can replace eth with the country code of the case-study country or
-# choose a new name.
-model_path <- "c:/Users/dijk158/OneDrive - Wageningen University & Research/Projects/ssid/ssid_eth"
-
-# Set location of ssid_db
-db_path <-   "c:/Users/dijk158/OneDrive - Wageningen University & Research/data/microsim_db"
-
-# Set ssid parameters
-param <- ssid_par(
-  model_path = model_path,
-  db_path = db_path,
-  iso3c = "ETH",
-  seed_year = 2018,
-  proj_year = 2020,
-  start_year = 2018,
-  end_year = 2050,
-  adm_level = 2)
-
-print(param)
+source(here::here("working_paper/scripts/1_model_setup/set_model_parameters.r"))
 
 
 # ========================================================================================
@@ -57,8 +18,8 @@ print(param)
 # ========================================================================================
 
 # Seed
-hh_db <- readRDS(file.path(param$model_path, glue("seed/hh_db_{param$iso3c}.rds")))
-per_db <- readRDS(file.path(param$model_path, glue("seed/per_db_{param$iso3c}.rds")))
+hh_db <- readRDS(file.path(param$model_path, glue("seed/seed_hh_db_{param$iso3c}.rds")))
+per_db <- readRDS(file.path(param$model_path, glue("seed/seed_per_db_{param$iso3c}.rds")))
 
 # Adm_list
 adm_list <- readRDS(file.path(param$model_path, glue("adm/adm_list_{param$iso3c}.rds")))
@@ -134,182 +95,47 @@ per_seed_by <- per_db %>%
   dplyr::select(region, id = hh_id, sex, age = age, urban_rural, occupation)
 
 
-# ========================================================================================
-# BASE YEAR SIMULATION -------------------------------------------------------------------
-# ========================================================================================
-
-# SEED ------------------------------------------------------------------------------------
-
-# For the base year, we include the m15 category
-# hh seed
-hh_seed_by <- hh_db %>%
-  rename(region = adm1_name) %>%
-  dplyr::select(region, id = hh_id) %>%
-  mutate(weight = 1,
-         hh_number = "n")
-
-per_seed_by <- per_db %>%
-  rename(region = adm1_name) %>%
-  dplyr::select(region, id = hh_id, sex, age = age, urban_rural, occupation)
-
-
-# BENCHMARK --------------------------------------------------------------------------------
-
-bm_by <- prepare_benchmark(subnat_hh_proj, subnat_urban_rural_proj, subnat_age_sex_proj, subnat_occ_proj)
-
-
-# ========================================================================================
-# RUN ONE REGION, PER YEAR, PER SSP ------------------------------------------------------
-# ========================================================================================
-
-temp_path <- file.path(param$model_path, glue("simulation/{Sys.Date()}"))
-dir.create(temp_path, recursive = TRUE, showWarnings = FALSE)
-
-ssp_y <- expand.grid(ssp = c("ssp1", "ssp2", "ssp3"), y = param$base_year, stringsAsFactors = FALSE) %>%
-  mutate(ssp_y = paste(ssp, y, sep = "_"))
-
-adm_list <- adm_list %>%
-  filter(region %in% c("BENISHANGUL-GUMUZ", "ADDIS ABABA", "HARARI", "DIRE DAWA", "GAMBELA"))
-
-
-tic()
-library(ipfr)
-sim_by <- ssp_y$ssp_y %>%
-  set_names() %>%
-  map(reweigh, adm_list$reg_tz, hh_seed_by, per_seed_by, bm_by,
-              verbose = TRUE, reg_sample = FALSE, max_iter = 500, max_ratio = 20, min_ratio = 0.01, relative_gap = 0.05,
-              absolute_diff = 10, parallel = TRUE, output = temp_path)
-toc()
-
-
-
-
-# ========================================================================================
-# CONVERGENCE STATISTICS -----------------------------------------------------------------
-# ========================================================================================
-
-# Convergence
-sim_by_stats <- sim_stats(sim_by, ssp_y$ssp_y[1], adm_list$reg_tz)
-table(sim_by_stats$converged)
-
-# plot of weights
-
-# UPDATE: Create function that compares across years per region?
-# Create pdf to inspect weights of histogram
-pdf(file = file.path(temp_path, "ssp1_3_by_weights.pdf")) # , width = 8.27, height = 11.69
-cc(sim, ssp_y$ssp_y, adm_list$reg_tz)
-dev.off()
-
-
-cc <- function(sim, ssp_y, reg_tz){
-  stats <- ssp_y %>%
-    set_names() %>%
-    map(function(y) {
-      reg_tz %>%
-        set_names() %>%
-        map(function(x) {
-          cat(x, y)
-          p <- sim[[y]][[x]]$weight_dist
-          t <- paste(y, x, sep = "_")
-          cat(t)
-          p
-        })
-    })
-  return(stats)
-}
-
-sim[[ssp_y$ssp_y[1]]][[adm_list$reg_tz[1]]]$weight_dist
-sim[[y]][[x]]
-
-extract_output <- function(sim, output) {
-   out <- map_df(sim, ~map_df(.x,  output, id = "name"), id = "name2")
-  return(out)
-}
-sim$ssp1_2018$`BENISHANGUL-GUMUZ-x-231006001`$
-names(sim)
-z <- extract_output(sim, "stats")
-
-extract_output <- function(df, var){
-  map_df(df, ~map_df(.x, var, .id = "x"), .id = "y")
-}
-
-extract_weight_plots <- function(sim, ssp_y, reg_tz) {
-  for(i in ssp_y){
-    for(j in reg_tz){
-      n <- paste(i, j, sep = " ")
-      cat(n,"\n")
-      print(sim[[i]][[j]]$weight_dist +
-              labs(title = n))
-    }
-  }
-}
-
-
-x <- map_df(sim, ~map_df(.x, "weight_tbl", .id = "name"), .id = "name2")
-
-sim[[ssp_y$ssp_y[1]]][[adm_list$reg_tz[1]]]$weight_dist
-mtcars_nested <- mtcars_nested %>%
-  mutate(model = map(data, function(df) lm(mpg ~ wt, data = df)))
-
-
-
-
-pdf(file = file.path(temp_path, "weights.pdf")) # , width = 8.27, height = 11.69
-extract_plots(sim_by, ssp_y$ssp_y, adm_list$reg_tz)
-dev.off()
-
-
-sim$ssp1_2018$`BENISHANGUL-GUMUZ-x-231006001`$weight_dist
-
-
-# ========================================================================================
-# BASE YEAR SIMULATION -------------------------------------------------------------------
-# ========================================================================================
-
-
 # BENCHMARK --------------------------------------------------------------------------------
 
 bm_by <- prepare_benchmark(subnat_hh_proj, subnat_urban_rural_proj, subnat_age_sex_proj, subnat_occ_proj)
 
 
 # SIMULATION -------------------------------------------------------------------------------
+temp_path <- file.path(param$model_path, glue("simulation/{Sys.Date()}"))
+dir.create(temp_path, recursive = TRUE, showWarnings = FALSE)
 
 # Note that some zones do not converge after 100 iterations.
 # We adjusted the relative gap from 0.01 to 0.05 and set iterations to 500,
 # We also slightly modified the min and max ratio
 # which leads to convergence for most regions. We might adjust in the final run
-# 1023 sec
-#10824
-ssp_y <- expand.grid(ssp = c("ssp1", "ssp2", "ssp3"), y = param$base_year, stringsAsFactors = FALSE) %>%
+# 7023 sec
+
+ssp_y <- expand.grid(ssp = c("ssp1", "ssp2", "ssp3"), y = param$seed_year, stringsAsFactors = FALSE) %>%
   mutate(ssp_y = paste(ssp, y, sep = "_"))
 
 tic()
 library(ipfr)
-sim_by <- map(ssp_y$ssp_y, reweigh, adm_list$reg_tz, hh_seed_by, per_seed_by, bm_by,
-              verbose = TRUE, reg_sample = FALSE, max_iter = 500, max_ratio = 20, min_ratio = 0.01, relative_gap = 0.05,
-              absolute_diff = 10, output = temp_path)
+sim_by <- ssp_y$ssp_y %>%
+  set_names() %>%
+  map(reweigh, adm_list$reg_tz, hh_seed_by, per_seed_by, bm_by, param,
+      verbose = TRUE, reg_sample = FALSE, max_iter = 500, max_ratio = 20, min_ratio = 0.01, relative_gap = 0.05,
+      absolute_diff = 10, parallel = TRUE, output = temp_path)
 names(sim_by) <- ssp_y$ssp_y
 toc()
 
+
+
+
+
 # CHECK CONVERGENCE ----------------------------------------------------------------------
 
-x <- extract_output(sim_by, "weight_tbl")
-table(sim_by_stats$converged)
-
-names(sim_by)
-sim_by$ssp1_2018$`TIGRAY-x-231001001`
-
-out <- map_df(sim_by, \(x) map(x, "weight_tbl", .id = "ssp_y"), .id = "reg_tz")
-
-xxx <- pluck(sim_by, 1, 1, 1)
-xx <- map_df(sim_by, list(c(2), "weight_tbl"))
-names(x)
 sim_by_stats <- map_df(ssp_y$ssp_y, function(y)
   map_df(seq_along(adm_list$reg_tz), function(x){
     sim_by[[y]][[adm_list$reg_tz[x]]]$stats$stats_sum},
     .id = "reg_tz"
   ), .id = "ssp_y"
 )
+table(sim_by_stats$converged)
 
 
 # ========================================================================================
@@ -321,7 +147,7 @@ sim_by_stats <- map_df(ssp_y$ssp_y, function(y)
 # We exclude any families that only consist of m15 members. If not, ipu cannot solved as
 # there is no matching data in per seed. In this case n = 1
 hh_seed_no_by <- hh_db %>%
-  filter(hh_size != hh_n_m15) %>%
+  filter(seed_hh_size != seed_hh_size_p15) %>%
   rename(region = adm1_name) %>%
   dplyr::select(region, id = hh_id) %>%
   mutate(weight = 1,
@@ -350,13 +176,11 @@ ssp_y <- expand.grid(ssp = c("ssp1", "ssp2", "ssp3"),
   mutate(ssp_y = paste(ssp, y, sep = "_"))
 
 tic()
-sim_no_by <- map(ssp_y$ssp_y, reweigh, adm_list$reg_tz, hh_seed_no_by, per_seed_no_by, bm_no_by,
+sim_no_by <- map(ssp_y$ssp_y, reweigh, adm_list$reg_tz[3], hh_seed_no_by, per_seed_no_by, bm_no_by, param,
                  verbose = FALSE, reg_sample = FALSE, max_iter = 500, max_ratio = 20, min_ratio = 0.01, relative_gap = 0.05,
-                 absolute_diff = 10, output = temp_path)
+                 absolute_diff = 10, parallel = TRUE, output = temp_path)
 names(sim_no_by) <- ssp_y$ssp_y
 toc()
-
-
 
 
 # CHECK CONVERGENCE ----------------------------------------------------------------------
@@ -369,4 +193,37 @@ sim_no_by_stats <- map_df(ssp_y$ssp_y, function(y)
     .id = "reg_tz"
   ), .id = "ssp_y"
 )
+
+
+# ========================================================================================
+# COMBINE SIMULATIONS --------------------------------------------------------------------
+# ========================================================================================
+
+# TO DO: Convert all sims to data.frames with columns that include scenario and year and bind.
+# In this way, all simulations can quickly be filtered, etc.
+
+
+# ========================================================================================
+# SAVE -----------------------------------------------------------------------------------
+# ========================================================================================
+
+temp_path <- file.path(param$model_path, glue("simulation/{Sys.Date()}"))
+dir.create(temp_path, recursive = T, showWarnings = F)
+saveRDS(sim_by, file.path(temp_path, glue("ssp1_3_by_{param$iso3c}.rds")))
+saveRDS(sim_no_by, file.path(temp_path, glue("ssp1_3_no_by_{param$iso3c}.rds")))
+
+
+# ========================================================================================
+# PLOT WEIGHTS ---------------------------------------------------------------------------
+# ========================================================================================
+
+# UPDATE: Create function that compares across years per region?
+# Create pdf to inspect weights of histogram
+pdf(file = file.path(temp_path, "ssp1_3_by_weights.pdf")) # , width = 8.27, height = 11.69
+walk(adm_list$reg_tz, create_weights_plot, sim_file = sim_by[[1]])
+dev.off()
+
+pdf(file = file.path(temp_path, "ssp1_3_2050_weights.pdf")) # , width = 8.27, height = 11.69
+walk(adm_list$reg_tz, create_weights_plot, sim_file = sim_no_by[[1]])
+dev.off()
 
