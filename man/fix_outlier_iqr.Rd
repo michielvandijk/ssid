@@ -4,17 +4,20 @@
 \alias{fix_outlier_iqr}
 \title{Function to fix outliers using interquartile range}
 \usage{
-fix_outlier_iqr(x, r = 1.5, d = "ul")
+fix_outlier_iqr(x, r = "m", f = 1.5, d = "ul")
 }
 \arguments{
 \item{x}{Vector with data containing outliers}
 
-\item{r}{Range. Default is 1.5}
+\item{r}{Values to replace the outliers. Either m for median (default) or q for 0.25 and .75 quantiles.}
+
+\item{f}{factor to determine outliers. Default is 1.5. Outliers are measured as values that are f * IQR above or below
+the .25 and .75 quantile range, respectively.}
 
 \item{d}{Direction where outliers will be replaced. u for upper values, l for lower values, ul for both.}
 }
 \description{
-This function uses the interquartile range to determine outliers and replace them with the median value.
+This function uses the interquartile range to determine outliers and replace them with the median or the 0.25 and .75 quantile.
 }
 \examples{
 fix_outlier_iqr(rnorm(40, mean = 0, sd = 1))

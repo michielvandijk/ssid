@@ -1,9 +1,11 @@
 #' Function to fix outliers using interquartile range
 #'
-#' This function uses the interquartile range to determine outliers and replace them with the median value.
+#' This function uses the interquartile range to determine outliers and replace them with the median or the 0.25 and .75 quantile.
 #'
 #' @param x Vector with data containing outliers
-#' @param r Range. Default is 1.5
+#' @param r Values to replace the outliers. Either m for median (default) or q for 0.25 and .75 quantiles.
+#' @param f factor to determine outliers. Default is 1.5. Outliers are measured as values that are f * IQR above or below
+#' the .25 and .75 quantile range, respectively.
 #' @param d Direction where outliers will be replaced. u for upper values, l for lower values, ul for both.
 #'
 #' @return
@@ -11,17 +13,28 @@
 #'
 #' @examples
 #' fix_outlier_iqr(rnorm(40, mean = 0, sd = 1))
-fix_outlier_iqr <- function(x, r = 1.5, d = "ul"){
+fix_outlier_iqr <- function(x, r = "m", f = 1.5, d = "ul"){
   q1 <- quantile(x, .25)
   q3 <- quantile(x, .75)
   m <- median((x))
   iqr <- IQR(x)
-  if(d == "l") {
-    x[which(x < q1-r*IQR(x))] <- m
-  } else if(d == "u") {
-    x[which(x > q3+r*IQR(x))] <- m
-  } else {
-    x[which(x < q1-r*IQR(x) | x > q3+r*IQR(x))] <- m
+  if(r == "m") {
+    if(d == "l") {
+      x[which(x < q1-f*IQR(x))] <- m
+    } else if(d == "u") {
+      x[which(x > q3+f*IQR(x))] <- m
+    } else {
+      x[which(x < q1-f*IQR(x) | x > q3+f*IQR(x))] <- m
+    }
+  } else if(r == "q"){
+    if(d == "l") {
+      x[which(x < q1-f*IQR(x))] <- q1
+    } else if(d == "u") {
+      x[which(x > q3+f*IQR(x))] <- q3
+    } else {
+      x[which(x < q1-f*IQR(x))] <- q1
+      x[which(x > q3+f*IQR(x))] <- q3
+    }
   }
   return(x)
 }

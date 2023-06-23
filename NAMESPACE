@@ -2,6 +2,7 @@
 
 S3method(print,ssid_par)
 export(aggregate2adm)
+export(align_raster)
 export(clip_country)
 export(create_folders)
 export(create_model_template)
@@ -15,3 +16,4 @@ export(load_data)
 export(prepare_benchmark)
 export(reweigh)
 export(ssid_par)
+import(terra, except = arrow)

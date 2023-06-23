@@ -24,7 +24,7 @@ LazyData: true
 URL: https://github.com/michielvandijk/ssid,
     https://michielvandijk.github.io/ssid/
 BugReports: https://github.com/michielvandijk/ssid/issues
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Imports: 
     dplyr,
     exactextractr,
