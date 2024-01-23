@@ -298,10 +298,11 @@ ssp_y <- expand.grid(ssp = c("ssp1", "ssp2", "ssp3"),
                      y = c(2020, 2030, 2040, 2050), stringsAsFactors = FALSE) %>%
   mutate(ssp_y = paste(ssp, y, sep = "_"))
 
+# NOTE: We assume reg_sample = TRUE and parallel = FALSE!!!
 tic()
 sim_no_by <- map(ssp_y$ssp_y, reweigh, adm_list$reg_tz, hh_seed_no_by, per_seed_no_by, bm_no_by, param = param,
-                 verbose = TRUE, reg_sample = FALSE, max_iter = 500, max_ratio = 20, min_ratio = 0.01, relative_gap = 0.05,
-                 absolute_diff = 10, output = temp_path)
+                 verbose = TRUE, reg_sample = TRUE, max_iter = 500, max_ratio = 20, min_ratio = 0.01, relative_gap = 0.05,
+                 absolute_diff = 10, parallel = FALSE, output = temp_path)
 names(sim_no_by) <- ssp_y$ssp_y
 toc()
 

@@ -29,23 +29,16 @@ options(digits = 4)
 # Set the folders where the scripts, model and database will be stored.
 # Note that R uses forward slashes even in Windows!!
 
-# Creates a model folder structure in c:/temp/ with the name 'ssid_eth'.
-# the user can replace eth with the country code of the case-study country or
-# choose a new name.
-model_path <- "c:/Users/dijk158/OneDrive - Wageningen University & Research/Projects/ssid/ssid_eth"
-
-# Set location of ssid_db
-db_path <-   "c:/Users/dijk158/OneDrive - Wageningen University & Research/data/microsim_db"
-
 # Set ssid parameters
 param <- ssid_par(
-  model_path = model_path,
-  db_path = db_path,
-  iso3c = "ETH",
-  seed_year = 2018,
+  model_path = "c:/Users/dijk158/OneDrive - Wageningen University & Research/Projects/ssid/ssid_bgd",
+  db_path = "c:/Users/dijk158/OneDrive - Wageningen University & Research/data/microsim_db",
+  iso3c = "BGD",
+  seed_year = 2016,
   proj_year = 2020,
-  start_year = 2018,
+  start_year = 2016,
   end_year = 2050,
   adm_level = 2)
+
 
 print(param)

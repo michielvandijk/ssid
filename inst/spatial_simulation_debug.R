@@ -64,6 +64,62 @@ adm_list <- adm_list %>%
 # ========================================================================================
 # SIMULATION FOR PROBLEMATIC REGION ------------------------------------------------------
 # ========================================================================================
+version <- "debug"
+temp_path <- file.path(param$model_path, glue("simulation/{version}/weights/raw"))
+dir.create(temp_path, recursive = TRUE, showWarnings = FALSE)
+
+
+# ========================================================================================
+# BASE YEAR SIMULATION -------------------------------------------------------------------
+# ========================================================================================
+
+# SEED ------------------------------------------------------------------------------------
+
+# For the base year, we include the m15 category
+# hh seed
+hh_seed_by <- hh_db %>%
+  rename(region = adm1_name) %>%
+  dplyr::select(region, id = hh_id) %>%
+  mutate(weight = 1,
+         hh_number = "n")
+
+per_seed_by <- per_db %>%
+  rename(region = adm1_name) %>%
+  dplyr::select(region, id = hh_id, sex, age = age, urban_rural, occupation)
+
+
+# BENCHMARK --------------------------------------------------------------------------------
+
+bm_by <- prepare_benchmark(subnat_hh_proj, subnat_urban_rural_proj, subnat_age_sex_proj, subnat_occ_proj)
+
+
+# SIMULATION -------------------------------------------------------------------------------
+
+# Note that some zones do not converge after 100 iterations.
+# We adjusted the relative gap from 0.01 to 0.05 and set iterations to 500,
+# We also slightly modified the min and max ratio
+# which leads to convergence for most regions. We might adjust in the final run
+# 7023 sec
+
+ssp_y <- expand.grid(ssp = c("ssp1", "ssp2", "ssp3"), y = param$seed_year, stringsAsFactors = FALSE) %>%
+  mutate(ssp_y = paste(ssp, y, sep = "_"))
+
+# NOTE: We assume reg_sample = TRUE and parallel = FALSE!!!
+tic()
+library(ipfr)
+sim_by <- ssp_y$ssp_y %>%
+  set_names() %>%
+  map(reweigh, adm_list$reg_tz[1], hh_seed_by, per_seed_by, bm_by, param,
+      verbose = TRUE, reg_sample = TRUE, max_iter = 500, max_ratio = 20, min_ratio = 0.01, relative_gap = 0.05,
+      absolute_diff = 10, parallel = FALSE, output = temp_path)
+toc()
+names(sim_by) <- ssp_y$ssp_y
+
+
+
+# ========================================================================================
+# NOT BY SIMULATION ----------------------------------------------------------------------
+# ========================================================================================
 
 # SEED ------------------------------------------------------------------------------------
 
@@ -96,13 +152,14 @@ ssp_y <- expand.grid(ssp = c("ssp1", "ssp2", "ssp3"),
                      y = c(2020, 2030, 2040, 2050), stringsAsFactors = FALSE) %>%
   mutate(ssp_y = paste(ssp, y, sep = "_"))
 
+# NOTE: We assume reg_sample = TRUE and parallel = FALSE!!!
+library(ipfr)
 tic()
 sim_no_by <- map(ssp_y$ssp_y[1], reweigh, adm_list$reg_tz[1], hh_seed_no_by, per_seed_no_by, bm_no_by, param,
-                 verbose = FALSE, reg_sample = FALSE, max_iter = 500, max_ratio = 20, min_ratio = 0.01, relative_gap = 0.05,
-                 absolute_diff = 10, parallel = TRUE, output = temp_path)
-names(sim_no_by) <- ssp_y$ssp_y
+                 verbose = FALSE, reg_sample = TRUE, max_iter = 500, max_ratio = 20, min_ratio = 0.01, relative_gap = 0.05,
+                 absolute_diff = 10, parallel = FALSE, output = temp_path)
 toc()
-
+names(sim_no_by) <- ssp_y$ssp_y[1]
 
 
 # ========================================================================================
@@ -112,11 +169,11 @@ toc()
 # Set input parameters
 ssp_y <- ssp_y$ssp_y[1]
 reg_tz <- adm_list$reg_tz[1]
-hh_s <- hh_seed_no_by
-per_s <- per_seed_no_by
-bm <- bm_no_by
-reg_sample = FALSE
-verbose = FALSE
+hh_s <- hh_seed_by
+per_s <- per_seed_by
+bm <- bm_by
+reg_sample = TRUE
+verbose = TRUE
 max_iter = 500
 max_ratio = 20
 min_ratio = 0.2
@@ -262,7 +319,7 @@ function (primary_seed, primary_targets, secondary_seed = NULL,
                            primary_id = primary_id, secondary_seed, secondary_targets)
   }
   else {
-    result <- check_tables(primary_seed, primary_targets,
+    result <- ipfr:::check_tables(primary_seed, primary_targets,
                            primary_id = primary_id)
   }
   primary_seed <- result[[1]]
@@ -555,4 +612,80 @@ function (seed, target, target_name, geo_colname)
            " ", geo, " in the seed table with a target greater than zero.")
     }
   }
+}
+
+ipfr:::check_tables(primary_seed, primary_targets,
+                    primary_id = primary_id, secondary_seed, secondary_targets)
+{
+  if (xor(!is.null(secondary_seed), !is.null(secondary_targets))) {
+    stop("You provided either secondary_seed or secondary_targets, but not both.")
+  }
+  if (any(is.na(unlist(primary_seed)))) {
+    stop("primary_seed table contains NAs")
+  }
+  if (any(is.na(unlist(primary_targets)))) {
+    stop("primary_targets table contains NAs")
+  }
+  if (!"weight" %in% colnames(primary_seed)) {
+    primary_seed$weight <- 1
+  }
+  secondary_seed_exists <- !is.null(secondary_seed)
+  id_field_exists <- primary_id %in% colnames(primary_seed)
+  if (!id_field_exists) {
+    if (secondary_seed_exists) {
+      stop("The primary seed table does not have field, '",
+           primary_id, "'.")
+    }
+    else {
+      primary_seed[primary_id] <- seq(1, nrow(primary_seed))
+    }
+  }
+  unique_ids <- unique(primary_seed[[primary_id]])
+  if (length(unique_ids) != nrow(primary_seed)) {
+    stop("The primary seed's ", primary_id, " field has duplicate values.")
+  }
+  for (name in names(primary_targets)) {
+    tbl <- primary_targets[[name]]
+    result <- ipfr:::check_geo_fields(primary_seed, tbl, name)
+    primary_seed <- result[[1]]
+    primary_targets[[name]] <- result[[2]]
+    tbl <- result[[2]]
+    pos <- grep("geo_", colnames(tbl))
+    geo_colname <- colnames(tbl)[pos]
+    ipfr:::check_missing_categories(primary_seed, tbl, name, geo_colname)
+  }
+  if (secondary_seed_exists) {
+    if (any(is.na(unlist(secondary_seed)))) {
+      stop("secondary_seed table contains NAs")
+    }
+    if (any(is.na(unlist(secondary_targets)))) {
+      stop("secondary_targets table contains NAs")
+    }
+    if (!primary_id %in% colnames(secondary_seed)) {
+      stop("The primary seed table does not have field '",
+           primary_id, "'.")
+    }
+    check <- grepl("geo_", colnames(secondary_seed))
+    if (any(check)) {
+      stop("Do not include geo fields in the secondary_seed table (primary_seed only).")
+    }
+    for (name in names(secondary_targets)) {
+      tbl <- secondary_targets[[name]]
+      result <- ipfr:::check_geo_fields(secondary_seed, tbl, name)
+      secondary_seed <- result[[1]]
+      if ("geo_all" %in% colnames(secondary_seed)) {
+        secondary_seed$geo_all <- NULL
+        primary_seed$geo_all <- 1
+      }
+      secondary_targets[[name]] <- result[[2]]
+      tbl <- result[[2]]
+      pos <- grep("geo_", colnames(tbl))
+      geo_colname <- colnames(tbl)[pos]
+      temp_seed <- secondary_seed %>% dplyr::left_join(primary_seed %>%
+                                                         dplyr::select(primary_id, geo_colname), by = primary_id)
+      ipfr:::check_missing_categories(temp_seed, tbl, name, geo_colname)
+    }
+  }
+  return(list(primary_seed, primary_targets, secondary_seed,
+              secondary_targets))
 }
