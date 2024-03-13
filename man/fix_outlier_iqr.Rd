@@ -9,7 +9,7 @@ fix_outlier_iqr(x, r = "m", f = 1.5, d = "ul")
 \arguments{
 \item{x}{Vector with data containing outliers}
 
-\item{r}{Values to replace the outliers. Either m for median (default) or q for 0.25 and .75 quantiles.}
+\item{r}{Values to replace the outliers. Either m for median (default) or q for 0.25 quantile range - f * IQR (lower) and/or 0.75 quantile range + f * IQR (upper).}
 
 \item{f}{factor to determine outliers. Default is 1.5. Outliers are measured as values that are f * IQR above or below
 the .25 and .75 quantile range, respectively.}
@@ -17,7 +17,7 @@ the .25 and .75 quantile range, respectively.}
 \item{d}{Direction where outliers will be replaced. u for upper values, l for lower values, ul for both.}
 }
 \description{
-This function uses the interquartile range to determine outliers and replace them with the median or the 0.25 and .75 quantile.
+This function uses the interquartile range to determine outliers and replace them with the median or a value based on the interquartile range.
 }
 \examples{
 fix_outlier_iqr(rnorm(40, mean = 0, sd = 1))
