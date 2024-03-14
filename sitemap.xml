@@ -25,13 +25,31 @@
     <loc>https://michielvandijk.github.io/ssid/news/index.html</loc>
   </url>
   <url>
+    <loc>https://michielvandijk.github.io/ssid/reference/adjust_factor.html</loc>
+  </url>
+  <url>
     <loc>https://michielvandijk.github.io/ssid/reference/aggregate2adm.html</loc>
   </url>
   <url>
     <loc>https://michielvandijk.github.io/ssid/reference/align_raster.html</loc>
   </url>
   <url>
+    <loc>https://michielvandijk.github.io/ssid/reference/balance_secondary_targets.html</loc>
+  </url>
+  <url>
+    <loc>https://michielvandijk.github.io/ssid/reference/check_geo_fields.html</loc>
+  </url>
+  <url>
+    <loc>https://michielvandijk.github.io/ssid/reference/check_missing_categories.html</loc>
+  </url>
+  <url>
+    <loc>https://michielvandijk.github.io/ssid/reference/check_tables.html</loc>
+  </url>
+  <url>
     <loc>https://michielvandijk.github.io/ssid/reference/clip_country.html</loc>
+  </url>
+  <url>
+    <loc>https://michielvandijk.github.io/ssid/reference/compare_results.html</loc>
   </url>
   <url>
     <loc>https://michielvandijk.github.io/ssid/reference/create_folders.html</loc>
@@ -58,6 +76,12 @@
     <loc>https://michielvandijk.github.io/ssid/reference/ipf_seed.html</loc>
   </url>
   <url>
+    <loc>https://michielvandijk.github.io/ssid/reference/ipu2.html</loc>
+  </url>
+  <url>
+    <loc>https://michielvandijk.github.io/ssid/reference/ipu_matrix.html</loc>
+  </url>
+  <url>
     <loc>https://michielvandijk.github.io/ssid/reference/ipu_subnat_proj.html</loc>
   </url>
   <url>
@@ -67,7 +91,13 @@
     <loc>https://michielvandijk.github.io/ssid/reference/prepare_benchmark.html</loc>
   </url>
   <url>
+    <loc>https://michielvandijk.github.io/ssid/reference/process_seed_table.html</loc>
+  </url>
+  <url>
     <loc>https://michielvandijk.github.io/ssid/reference/reweigh.html</loc>
+  </url>
+  <url>
+    <loc>https://michielvandijk.github.io/ssid/reference/scale_targets.html</loc>
   </url>
   <url>
     <loc>https://michielvandijk.github.io/ssid/reference/ssid-package.html</loc>
