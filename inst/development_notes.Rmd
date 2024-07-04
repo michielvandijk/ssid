@@ -5,10 +5,15 @@ date: "2022-09-07"
 output: pdf_document
 ---
 
+# Need to investige the size of the weights, which can be very large for some hh. survey package has a trimWeights function that we can use.
+
+# It appears that at least in Balochistan - Pakistan, reweigting without m15 category results in downward scaling of childred, which puts a downward bias on income and poverty in the base year => probably best to reweigh base year including m15 and then drop this category. It also would be interesting to compare weighting in and ex m15 for all periods and scenarios. Perhaps in high-pop scenarios (SSP3), keeping the m15 category is better.
+
 # Functions to add in the package
 
 -   Function that checks consistency of the person and hh data - see checks in script.
 - Update create_weights_plot and improve loop in script
+
 
 # Settings
 
@@ -46,7 +51,7 @@ Need to rename occ to occupation in occ projections as this is the header we als
 - Can we calculate the headship rate from the LSMS at the adm1, if LSMS is representative at adm1?
 - Check consistency between real population and that implied by simulation (hh_weight x hh_size): See note in simulate_income_change.R Also check calculation of hh_size!!
 - Check contribution of not_in_lf to income change. Now we estimate wage and add but perhaps set to zero contribution simular to m15?
-
+- Can use capital and land rents to update residual income change.
 
 # Indicators
 
