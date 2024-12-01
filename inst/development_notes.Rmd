@@ -9,6 +9,11 @@ output: pdf_document
 
 # It appears that at least in Balochistan - Pakistan, reweigting without m15 category results in downward scaling of childred, which puts a downward bias on income and poverty in the base year => probably best to reweigh base year including m15 and then drop this category. It also would be interesting to compare weighting in and ex m15 for all periods and scenarios. Perhaps in high-pop scenarios (SSP3), keeping the m15 category is better.
 
+https://r-project.ro/conference2021/presentations/Inequality%20measures%20for%20weighted%20data.pdf present an example of bootstrapping inequality index. Can we provide bootrap values for outcome indicators? https://projecteuclid-org.ezproxy.library.wur.nl/journals/statistics-surveys/volume-10/issue-none/A-survey-of-bootstrap-methods-in-finite-population-sampling/10.1214/16-SS113.full  provides an overview of bootstrap methods for surveys. Which are applied in this package: https://bschneidr.github.io/svrep/. See https://cran.r-project.org/web/views/OfficialStatistics.html for a range of packages for bootstrapping, weighting etc of surveys.
+
+See https://cran.r-project.org/web/packages/surveysd/vignettes/ipf.html for another package that is able to do household and person weighting!!! And bootsrapping!
+
+
 # Functions to add in the package
 
 -   Function that checks consistency of the person and hh data - see checks in script.
@@ -99,3 +104,6 @@ Need to create a script that checks all data, including:
 - Compare projections to historical if panel data (e.g. Malawi) is available
 - Compare different type of projections/nowcasting: (1) using average GDP such as in Lakner/WB; (2) using MAGNET wage rates
 
+
+Check: The Distributional Impact of Taxes and Social Spending in Bhutan An Application with Limited Income Data, Juan Pablo Baquero
+Jia Gao Yeon Soo Kim for a better method to decompose household income into occupation classes contrubibution
