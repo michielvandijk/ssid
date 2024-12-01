@@ -1,108 +1,38 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/404.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/articles/Introduction.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/index.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/adjust_factor.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/aggregate2adm.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/align_raster.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/balance_secondary_targets.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/check_geo_fields.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/check_missing_categories.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/check_tables.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/clip_country.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/compare_results.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/create_folders.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/create_model_template.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/extract_output.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/extract_weight_plots.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/fix_outlier_iqr.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/fix_outlier_quantile.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/ipf_seed.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/ipu2.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/ipu_matrix.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/ipu_subnat_proj.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/load_data.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/prepare_benchmark.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/process_seed_table.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/reweigh.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/scale_targets.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/ssid-package.html</loc>
-  </url>
-  <url>
-    <loc>https://michielvandijk.github.io/ssid/reference/ssid_par.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://michielvandijk.github.io/ssid/404.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/LICENSE-text.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/LICENSE.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/articles/Introduction.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/articles/index.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/authors.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/index.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/news/index.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/adjust_factor.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/aggregate2adm.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/align_raster.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/balance_secondary_targets.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/check_geo_fields.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/check_missing_categories.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/check_tables.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/clip_country.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/compare_results.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/create_folders.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/create_model_template.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/extract_output.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/extract_weight_plots.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/fix_outlier_iqr.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/fix_outlier_quantile.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/index.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/ipf_seed.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/ipu2.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/ipu_matrix.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/ipu_subnat_proj.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/load_data.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/prepare_benchmark.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/process_seed_table.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/reweigh.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/scale_targets.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/ssid-package.html</loc></url>
+<url><loc>https://michielvandijk.github.io/ssid/reference/ssid_par.html</loc></url>
 </urlset>
+
