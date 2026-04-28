@@ -1,0 +1,38 @@
+# Title
+
+Title
+
+## Usage
+
+``` r
+reweigh(
+  ssp_y,
+  reg_tz,
+  hh_s,
+  per_s,
+  bm,
+  param,
+  reg_sample = FALSE,
+  verbose = FALSE,
+  max_iter = 300,
+  max_ratio = 5,
+  min_ratio = 0.2,
+  relative_gap = 0.01,
+  absolute_diff = 10,
+  parallel = TRUE,
+  output = NULL
+)
+```
+
+## Arguments
+
+- parallel:
+
+  If TRUE (the default), the reweighing algorithm is run in parallel for
+  all regions. Otherwise, the sequential option is used (which in most
+  cases takes much longer.
+
+- output:
+
+  A folder where to save the output for each ssp-year combination as
+  specified in `ssp_y`. The default (NULL) is not to save any output.
