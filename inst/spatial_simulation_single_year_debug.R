@@ -102,14 +102,15 @@ bm_by <- prepare_benchmark(subnat_household, subnat_urban_rural,
 ssp_y <- expand.grid(ssp = c("ssp2"), y = 2020, stringsAsFactors = FALSE) |>
   mutate(ssp_y = paste(ssp, y, sep = "_"))
 
-# NOTE: We assume reg_sample = TRUE and parallel = FALSE!!!
+
+#  Distrito Federal-x-009002
 tic()
 library(ipfr)
 sim_by <- ssp_y$ssp_y |>
   set_names() |>
-  map(reweigh, adm_list$reg_tz[c(1, 95, 2400, 2455)], hh_survey, per_survey, bm_by, param,
+  map(reweigh, adm_list$reg_tz[adm_list$reg_tz %in% c("Distrito Federal-x-009002", "Aguascalientes-x-001006", "Michoacán de Ocampo-x-016051")], hh_survey, per_survey, bm_by, param,
       verbose = TRUE, reg_sample = TRUE, max_iter = 500, max_ratio = 20, min_ratio = 0.01, relative_gap = 0.05,
-      absolute_diff = 10, parallel = TRUE, output = temp_path)
+      absolute_diff = 10, parallel = FALSE, output = temp_path)
 toc()
 names(sim_by) <- ssp_y$ssp_y
 
@@ -120,7 +121,7 @@ names(sim_by) <- ssp_y$ssp_y
 
 # Set input parameters
 ssp_y <- ssp_y$ssp_y[1]
-reg_tz <- adm_list$reg_tz[1]
+reg_tz <- "Distrito Federal-x-009002"
 hh_s <- hh_survey |> as_tibble()
 per_s <- per_survey |> as_tibble()
 bm <- bm_by
