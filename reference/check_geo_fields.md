@@ -4,9 +4,15 @@ Helper function for
 [`check_tables`](https://michielvandijk.github.io/ssid/reference/check_tables.md).
 Makes sure that geographies in a seed and target table line up properly.
 
+Helper function for
+[`check_tables`](https://michielvandijk.github.io/ssid/reference/check_tables.md).
+Makes sure that geographies in a seed and target table line up properly.
+
 ## Usage
 
 ``` r
+check_geo_fields(seed, target, target_name)
+
 check_geo_fields(seed, target, target_name)
 ```
 
@@ -25,5 +31,7 @@ check_geo_fields(seed, target, target_name)
   the name of the target (e.g. size)
 
 ## Value
+
+The seed and target table (which may be modified)
 
 The seed and target table (which may be modified)

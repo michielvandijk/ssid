@@ -37,6 +37,9 @@
 - [`ipf_seed()`](https://michielvandijk.github.io/ssid/reference/ipf_seed.md)
   : ipf_seed
 
+- [`ipu()`](https://michielvandijk.github.io/ssid/reference/ipu.md) :
+  Iterative Proportional Updating
+
 - [`ipu2()`](https://michielvandijk.github.io/ssid/reference/ipu2.md) :
   Iterative Proportional Updating
 

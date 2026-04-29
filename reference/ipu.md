@@ -7,13 +7,10 @@ person-level marginal controls. This could be for survey expansion or
 synthetic population creation. The second set of marginal/seed data is
 optional, meaning it can also be used for more basic IPF tasks.
 
-This is the same function as provided by the ipfr package but updated so
-the output also includes information weather the algorithm converged.
-
 ## Usage
 
 ``` r
-ipu2(
+ipu(
   primary_seed,
   primary_targets,
   secondary_seed = NULL,
@@ -86,12 +83,10 @@ ipu2(
 
 - absolute_diff:
 
-  Upon completion, the
-  [`ipu()`](https://michielvandijk.github.io/ssid/reference/ipu.md)
-  function will report the worst-performing marginal category and
-  geography based on the percent difference from the target.
-  `absolute_diff` is a threshold below which percent differences don't
-  matter.
+  Upon completion, the `ipu()` function will report the worst-performing
+  marginal category and geography based on the percent difference from
+  the target. `absolute_diff` is a threshold below which percent
+  differences don't matter.
 
   For example, if if a target value was 2, and the expanded weights
   equaled 1, that's a 100% difference, but is not important because the

@@ -2,9 +2,13 @@
 
 At lower values of importance, the factor is moved closer to 1.
 
+At lower values of importance, the factor is moved closer to 1.
+
 ## Usage
 
 ``` r
+adjust_factor(factor, importance)
+
 adjust_factor(factor, importance)
 ```
 
@@ -21,5 +25,7 @@ adjust_factor(factor, importance)
   shrink the factor closer to 1.0 by 50 percent.
 
 ## Value
+
+The adjusted factor.
 
 The adjusted factor.

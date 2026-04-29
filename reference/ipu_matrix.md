@@ -1,11 +1,18 @@
 # Balance a matrix given row and column targets
 
-This function simplifies the call to `ipu()` for the simple case of a
-matrix and row/column targets.
+This function simplifies the call to
+[`ipu()`](https://michielvandijk.github.io/ssid/reference/ipu.md) for
+the simple case of a matrix and row/column targets.
+
+This function simplifies the call to
+[`ipu()`](https://michielvandijk.github.io/ssid/reference/ipu.md) for
+the simple case of a matrix and row/column targets.
 
 ## Usage
 
 ``` r
+ipu_matrix(mtx, row_targets, column_targets, ...)
+
 ipu_matrix(mtx, row_targets, column_targets, ...)
 ```
 
@@ -25,16 +32,25 @@ ipu_matrix(mtx, row_targets, column_targets, ...)
 
 - ...:
 
-  additional arguments that are passed to `ipu()`. See `ipu` for
+  additional arguments that are passed to
+  [`ipu()`](https://michielvandijk.github.io/ssid/reference/ipu.md). See
+  [`ipu`](https://michielvandijk.github.io/ssid/reference/ipu.md) for
   details.
 
 ## Value
 
 A `matrix` that matches row and column targets
 
+A `matrix` that matches row and column targets
+
 ## Examples
 
 ``` r
+mtx <- matrix(data = runif(9), nrow = 3, ncol = 3)
+row_targets <- c(3, 4, 5)
+column_targets <- c(5, 4, 3)
+ipu_matrix(mtx, row_targets, column_targets)
+#> Error in seed %>% dplyr::mutate(geo_all = 1, id = seq(1, n())): could not find function "%>%"
 mtx <- matrix(data = runif(9), nrow = 3, ncol = 3)
 row_targets <- c(3, 4, 5)
 column_targets <- c(5, 4, 3)

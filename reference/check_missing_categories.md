@@ -2,9 +2,13 @@
 
 Helper function for `check_tables`.
 
+Helper function for `check_tables`.
+
 ## Usage
 
 ``` r
+check_missing_categories(seed, target, target_name, geo_colname)
+
 check_missing_categories(seed, target, target_name, geo_colname)
 ```
 
@@ -28,5 +32,7 @@ check_missing_categories(seed, target, target_name, geo_colname)
   geo_taz)
 
 ## Value
+
+Nothing. Throws an error if one is found.
 
 Nothing. Throws an error if one is found.

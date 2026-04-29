@@ -3,7 +3,17 @@
 primary and secondary targets. Often, these can be very different, which leads
 to poor performance. The algorithm must use extremely large or small weights
 to match the competing goals. The secondary targets are scaled so that they
+are consistent with the primary targets on this measurement.
+The average weight per record needed to satisfy targets is computed for both
+primary and secondary targets. Often, these can be very different, which leads
+to poor performance. The algorithm must use extremely large or small weights
+to match the competing goals. The secondary targets are scaled so that they
 are consistent with the primary targets on this measurement."><meta property="og:description" content="The average weight per record needed to satisfy targets is computed for both
+primary and secondary targets. Often, these can be very different, which leads
+to poor performance. The algorithm must use extremely large or small weights
+to match the competing goals. The secondary targets are scaled so that they
+are consistent with the primary targets on this measurement.
+The average weight per record needed to satisfy targets is computed for both
 primary and secondary targets. Often, these can be very different, which leads
 to poor performance. The algorithm must use extremely large or small weights
 to match the competing goals. The secondary targets are scaled so that they
@@ -41,12 +51,17 @@ are consistent with the primary targets on this measurement."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Balances secondary targets to primary</h1>
-      <small class="dont-index">Source: <a href="https://github.com/michielvandijk/ssid/blob/master/R/ipu2.R" class="external-link"><code>R/ipu2.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/michielvandijk/ssid/blob/master/R/ipu.R" class="external-link"><code>R/ipu.R</code></a>, <a href="https://github.com/michielvandijk/ssid/blob/master/R/ipu2.R" class="external-link"><code>R/ipu2.R</code></a></small>
       <div class="d-none name"><code>balance_secondary_targets.Rd</code></div>
     </div>
 
     <div class="ref-description section level2">
     <p>The average weight per record needed to satisfy targets is computed for both
+primary and secondary targets. Often, these can be very different, which leads
+to poor performance. The algorithm must use extremely large or small weights
+to match the competing goals. The secondary targets are scaled so that they
+are consistent with the primary targets on this measurement.</p>
+<p>The average weight per record needed to satisfy targets is computed for both
 primary and secondary targets. Often, these can be very different, which leads
 to poor performance. The algorithm must use extremely large or small weights
 to match the competing goals. The secondary targets are scaled so that they
@@ -62,16 +77,74 @@ are consistent with the primary targets on this measurement.</p>
 <span>  <span class="va">secondary_seed</span>,</span>
 <span>  <span class="va">secondary_importance</span>,</span>
 <span>  <span class="va">primary_id</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">balance_secondary_targets</span><span class="op">(</span></span>
+<span>  <span class="va">primary_targets</span>,</span>
+<span>  <span class="va">primary_seed</span>,</span>
+<span>  <span class="va">secondary_targets</span>,</span>
+<span>  <span class="va">secondary_seed</span>,</span>
+<span>  <span class="va">secondary_importance</span>,</span>
+<span>  <span class="va">primary_id</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
+    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
+
+
+<dl><dt id="arg-primary-targets">primary_targets<a class="anchor" aria-label="anchor" href="#arg-primary-targets"></a></dt>
+<dd><p>A <code>named list</code> of data frames.  Each name in the
+list defines a marginal dimension and must match a column from the
+<code>primary_seed</code> table. The data frame associated with each named list
+element can contain a geography field (starting with "geo_"). If so, each
+row in the target table defines a new geography (these could be TAZs,
+tracts, clusters, etc.). The other column names define the marginal
+categories that targets are provided for. The vignette provides more
+detail.</p></dd>
+
+
+<dt id="arg-primary-seed">primary_seed<a class="anchor" aria-label="anchor" href="#arg-primary-seed"></a></dt>
+<dd><p>In population synthesis or household survey expansion,
+this would be the household seed table (each record would represent a
+household). It could also be a trip table, where each row represents an
+origin-destination pair.</p></dd>
+
+
+<dt id="arg-secondary-targets">secondary_targets<a class="anchor" aria-label="anchor" href="#arg-secondary-targets"></a></dt>
+<dd><p>Same format as <code>primary_targets</code>, but they constrain
+the <code>secondary_seed</code> table.</p></dd>
+
+
+<dt id="arg-secondary-seed">secondary_seed<a class="anchor" aria-label="anchor" href="#arg-secondary-seed"></a></dt>
+<dd><p>Most commonly, if the primary_seed describes
+households, the secondary seed table would describe the persons in each
+household. Must contain the same <code>primary_id</code> column that links each
+person to their respective household in <code>primary_seed</code>.</p></dd>
+
+
+<dt id="arg-secondary-importance">secondary_importance<a class="anchor" aria-label="anchor" href="#arg-secondary-importance"></a></dt>
+<dd><p>A <code>real</code> between 0 and 1 signifying the
+importance of the secondary targets. At an importance of 1, the function
+will try to match the secondary targets exactly. At 0, only the percentage
+distributions are used (see the vignette section "Target Agreement".)</p></dd>
+
+
+<dt id="arg-primary-id">primary_id<a class="anchor" aria-label="anchor" href="#arg-primary-id"></a></dt>
+<dd><p>The field used to join the primary and secondary seed
+tables. Only necessary if <code>secondary_seed</code> is provided.</p></dd>
+
+</dl></div>
+    <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code>named list</code> of the secondary targets</p>
+<p><code>named list</code> of the secondary targets</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>If multiple geographies are present in the secondary_target table, then
+balancing is done for each geography separately.</p>
+<p>If multiple geographies are present in the secondary_target table, then
 balancing is done for each geography separately.</p>
     </div>
 
