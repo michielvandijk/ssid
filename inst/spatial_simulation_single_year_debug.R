@@ -103,12 +103,12 @@ ssp_y <- expand.grid(ssp = c("ssp2"), y = 2020, stringsAsFactors = FALSE) |>
   mutate(ssp_y = paste(ssp, y, sep = "_"))
 
 
-#  Distrito Federal-x-009002
+#  Distrito Federal-x-009013
 tic()
 library(ipfr)
 sim_by <- ssp_y$ssp_y |>
   set_names() |>
-  map(reweigh, adm_list$reg_tz[adm_list$reg_tz %in% c("Distrito Federal-x-009002", "Aguascalientes-x-001006", "Michoacán de Ocampo-x-016051")], hh_survey, per_survey, bm_by, param,
+  map(reweigh, adm_list$reg_tz[adm_list$reg_tz %in% c("Distrito Federal-x-009013")], hh_survey, per_survey, bm_by, param,
       verbose = TRUE, reg_sample = TRUE, max_iter = 500, max_ratio = 20, min_ratio = 0.01, relative_gap = 0.05,
       absolute_diff = 10, parallel = FALSE, output = temp_path)
 toc()
