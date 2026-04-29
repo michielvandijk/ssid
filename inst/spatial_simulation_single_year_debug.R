@@ -110,7 +110,7 @@ sim_by <- ssp_y$ssp_y |>
   set_names() |>
   map(reweigh, adm_list$reg_tz[adm_list$reg_tz %in% c("Distrito Federal-x-009013")], hh_survey, per_survey, bm_by, param,
       verbose = TRUE, reg_sample = TRUE, max_iter = 500, max_ratio = 20, min_ratio = 0.01, relative_gap = 0.05,
-      absolute_diff = 10, parallel = FALSE, output = temp_path)
+      absolute_diff = 10, parallel = TRUE, output = temp_path)
 toc()
 names(sim_by) <- ssp_y$ssp_y
 
